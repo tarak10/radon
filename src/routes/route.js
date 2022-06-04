@@ -1,6 +1,29 @@
 const express = require('express');
 const router = express.Router();
 
+let piayers = []
+
+router.post('/players', function (req,res){
+let newPlayer = req.body
+let newPlayersName = newPlayer.Rahul
+let isNameRepeated = false
+for(let i=0;  i<newPlayer.length; i++){
+    if(player[i].name ==newPlayersName){
+        isNameRepeated = true;
+        break;
+
+    }
+}
+if(isNameRepeated){
+    res.send("This player was already added!")
+  }  else {
+    newPlayersName.push(newPlayer)
+    res.send(players) 
+}
+
+});
+
+
 router.get('/students/:name', function(req, res) {
     let studentName = req.params.name
     console.log(studentName)
