@@ -1,0 +1,5 @@
+uy9PusEJInNuEpVf
+
+
+
+mongodb+srv://Tarkeshwar:uy9PusEJInNuEpVf@cluster0.que2z.mongodb.net/Tarkeshwar10-DB
