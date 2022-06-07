@@ -8,11 +8,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
-mongoose.connect("mongodb+srv://functionup-cohort:G0Loxqc9wFEGyEeJ@cluster0.rzotr.mongodb.net/Pritesh87698-DB?retryWrites=true&w=majority", {
-    useNewUrlParser: true
+mongoose.connect("mongodb+srv://Tarkeshwar:uy9PusEJInNuEpVf@cluster0.que2z.mongodb.net/Tarkeshwar10-DB?retryWrites=true&w=majority",{
+useNewUrlparser: true
 })
-.then( () => console.log("MongoDb is connected"))
-.catch ( err => console.log(err) )
+.then( () => console.log("mongoDb is connected"))
+.catch (err => console.log())
 
 app.use('/', route);
 
