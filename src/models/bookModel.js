@@ -9,7 +9,7 @@ const bookSchema = new mongoose.Schema( {
     prices: {
         indianPrice: String,
         europePrice: String,
-    },
+ },
     sales: {type: Number, default: 10},
     
     // " best boook on earth"   [ "Nodejs in detail" , "mongodb in detail", "fronend in detail"] 
