@@ -8,7 +8,6 @@ const authentication = async function(req, res, next) {
     if (!validToken) {
         res.status(400).send({ status: false, msg: "the user is not found" })
     }
-    //console.log(validToken)
     req.body.tokenId = validToken._id
     next()
 }
