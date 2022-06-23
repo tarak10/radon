@@ -9,7 +9,7 @@ router.get("/test-me", function (req, res) {
 
 router.post("/authors",authorController.createAuthor)
 
-router.post("/blogs", blogscontroller.createblogs)
+router.post("/blogs", blogscontroller.createBlogs)
 
 router.get("/blogs", blogscontroller.getallblogs)
 
@@ -19,6 +19,7 @@ router.put("/blogs/:blogId", blogscontroller.updateBlog)
 
 router.put("/updatingpublisher", blogscontroller.updatingpublisherwithdate)
 
+router.get("/blogs/:blogId", blogscontroller.deleteBlogsById)
 
-
+router.get("//blogs?queryParams", blogscontroller.deleteBlogByQuerConditoin)
 module.exports = router
