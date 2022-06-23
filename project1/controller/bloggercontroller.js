@@ -2,8 +2,8 @@ const jwt = require("jsonwebtoken");
 const authorModel = require("../models/authorModel");
 const blogsModel = require("../models/blogsModel")
 const moment = require('moment')
-
-//================================================ Creating Blogs ======================================================================// 
+//============================================================ Phase I ================================================================//
+//========================================================= Creating Blogs ===========================================================// 
 
 const createBlogs = async function (req, res) {
     try {
@@ -119,7 +119,22 @@ const deleteBlogByQuerConditoin = async function (req, res) {
         res.status(500).send({ msg: err.message })
     }
 }
+//============================================================ Phase II ====================================================================//
 
+const loginauthor = async function (req, res) {
+    try {
+        let userName = req.body.email;
+        let password = req.body.password;
+        let user = await authorModel.findOne({ email: userName, password: password });
+        if (!user) return res.send({ status: false, msg: "username or the password is not corerct" });
+        let token = jwt.sign({ userId: user._id.toString() }, "projectOne");
+        res.setHeader("x-api-key", token);
+        res.send({ status: true, token: token });
+    }
+    catch (error) {
+        res.status(400).send({ msg: error.message })
+    }
+}
 
 //========================================================== Exported Module ===================================================================//
 module.exports.createBlogs = createBlogs
@@ -129,4 +144,5 @@ module.exports.updateBlog = updateBlog
 module.exports.updatingpublisherwithdate = updatingpublisherwithdate
 module.exports.deleteBlogsById = deleteBlogsById
 module.exports.deleteBlogByQuerConditoin = deleteBlogByQuerConditoin
+module.exports.loginauthor=loginauthor
 
