@@ -10,17 +10,15 @@ router.get("/test-me", function (req, res) {
 
 router.post("/authors",authorController.createAuthor)
 
-router.post("/blogs", middleware.authentification,middleware.autherisation, blogscontroller.createBlogs)
+router.post("/authorlogin", authorController.loginauthor)
 
-router.get("/blogs", middleware.authentification,middleware.autherisation, blogscontroller.getallblogs)
+router.post("/blogs/:userId", middleware.authentification,middleware.autherisation, blogscontroller.createBlogs)
 
-router.get("/specificblogs", middleware.authentification,middleware.autherisation, blogscontroller.getByFilter)
+router.get("/specificblogs/:userId", middleware.authentification,middleware.autherisation, blogscontroller.getByFilter)
 
-router.put("/blogs/:blogId", middleware.authentification,middleware.autherisation, blogscontroller.updateBlog)
+router.put("/blogs/:userId/:blogId", middleware.authentification,middleware.autherisation, blogscontroller.updateBlog)
 
-router.put("/updatingpublisher", middleware.authentification,middleware.autherisation, blogscontroller.updatingpublisherwithdate)
+router.delete("/blogs/:userId/:blogId", middleware.authentification,middleware.autherisation, blogscontroller.deleteBlogsById)
 
-router.get("/blogs/:blogId", middleware.authentification,middleware.autherisation, blogscontroller.deleteBlogsById)
-
-router.get("//blogs?queryParams", middleware.authentification,middleware.autherisation, blogscontroller.deleteBlogByQuerConditoin)
+router.delete("/blogs/:userId?queryParams", middleware.authentification,middleware.autherisation, blogscontroller.deleteBlogByQuerConditoin)
 module.exports = router

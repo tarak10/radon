@@ -9,7 +9,7 @@ const authentification = async function (req, res, next) {
 }
 
 const autherisation = async function (req, res, next) {
-    let token = req.headers["x-auth-token"];
+    let token = req.headers["x-api-key"];
     let decodedToken = jwt.verify(token, "projectOne");
     let userToBeModified = req.params.userId
     let userLoggedIn = decodedToken.userId
