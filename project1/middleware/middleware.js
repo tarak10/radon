@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-const authentification = async function (req, res, next) {
+const authentication = async function (req, res, next) {
     let token = req.headers["x-api-key"];
     if (!token) return res.status(404).send({ status: false, msg: "token must be present" });
     let decodedToken = jwt.verify(token, "projectOne");
@@ -8,7 +8,7 @@ const authentification = async function (req, res, next) {
     next()
 }
 
-const autherisation = async function (req, res, next) {
+const authorisation = async function (req, res, next) {
     let token = req.headers["x-api-key"];
     let decodedToken = jwt.verify(token, "projectOne");
     let userToBeModified = req.params.userId
@@ -17,5 +17,5 @@ const autherisation = async function (req, res, next) {
     next()
 }
 
-module.exports.authentification = authentification
-module.exports.autherisation = autherisation
+module.exports.authentication = authentication
+module.exports.authorisation = authorisation
