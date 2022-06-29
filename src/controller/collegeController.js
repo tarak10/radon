@@ -31,7 +31,7 @@ const createCollege = async function(req, res) {
         if (nullValue(fullName)) {
             return res.status(400).send({ status: false, message: "Invalid College full name or College full name is not mentioned." })
         }
-        if (!/^[a-zA-Z ]{3,50}$/.test(fullName)) {
+        if (!/^[a-zA-Z ,]{3,50}$/.test(fullName)) {
             return res.status(400).send({ status: false, message: "Invalid College full name" })
         }
         const duplicateFullName = await collegeModel.findOne({ fullName: fullName })
@@ -47,8 +47,8 @@ const createCollege = async function(req, res) {
             return res.status(400).send({ status: false, message: "The logoLink is not valid." })
         }
 
-
         let saveData = await collegeModel.create(req.body)
+
         return res.status(201).send({ status: true, data: { saveData } })
 
     } catch (error) {
