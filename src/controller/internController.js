@@ -58,11 +58,13 @@ const createIntern = async function(req, res) {
         if (nullValue(collegeName)) {
             return res.status(400).send({ status: false, message: "Invalid intern name or intern name is not mentioned." })
         }
-        let collegeId = await collegeModel.findOne({ name: collegeName }).select({ _id: 1 })
+        let collegeId = await collegeModel.findOne({ name: collegeName.toLowerCase() }).select({ _id: 1 })
         if (!collegeId) {
             return res.status(400).send({ status: false, message: "Enter a valid college name." })
         }
-        result.collegeId = collegeId
+        result.collegeId = collegeId._id
+
+
         let saveData = await internModel.create(result)
         return res.status(201).send({ status: true, data: { saveData } })
     } catch (error) {
@@ -79,7 +81,7 @@ const getInterns = async function(req, res) {
             return res.status(400).send({ status: false, message: 'College name is not mentioned.' })
         }
 
-        let collegeId = await collegeModel.findOne({ name: collegeName }).select({ _id: 1, name: 1, fullName: 1, logoLink: 1 })
+        let collegeId = await collegeModel.findOne({ name: collegeName.toLowerCase() }).select({ _id: 1, name: 1, fullName: 1, logoLink: 1 })
         if (!collegeId) {
             return res.status(404).send({ status: false, message: "No such College is available" })
         }
