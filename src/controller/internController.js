@@ -90,9 +90,9 @@ const getInterns = async function(req, res) {
 
         let intern = await internModel.find({ collegeId: collegeId._id }).select({ _id: 1, name: 1, email: 1, mobile: 1 })
 
-        // let final = await collegeModel.findOne({ name: collegeName.toLowerCase() }).select({ _id: 0, name: 1, fullName: 1, logoLink: 1 })
+
         let final = { name: collegeId.name, fullName: collegeId.fullName, logoLink: collegeId.logoLink }
-            //   final = JSON.parse(JSON.stringify(final))
+
 
         if (intern.length == 0) {
             let data = {...final, intern: "No intern have applied to this college!" }
