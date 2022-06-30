@@ -52,10 +52,10 @@ const createIntern = async function(req, res) {
         result.mobile = mobile
 
 
-        if (!/^[a-zA-Z ]{3,20}$/.test(collegName)) {
-            return res.status(400).send({ status: false, message: "Intern name is not valid" })
+        if (!/^[a-zA-Z ]{3,20}$/.test(collegeName)) {
+            return res.status(400).send({ status: false, message: "College name is not valid" })
         }
-        if (nullValue(collegeNname)) {
+        if (nullValue(collegeName)) {
             return res.status(400).send({ status: false, message: "Invalid intern name or intern name is not mentioned." })
         }
         let collegeId = await collegeModel.findOne({ name: collegeName }).select({ _id: 1 })
@@ -74,10 +74,6 @@ const createIntern = async function(req, res) {
 const getInterns = async function(req, res) {
     try {
         let collegeName = req.query.collegeName
-        console.log(collegeName)
-        if (collegeName == undefined) {
-
-        }
 
         if (nullValue(collegeName)) {
             return res.status(400).send({ status: false, message: 'College name is not mentioned.' })
@@ -85,17 +81,18 @@ const getInterns = async function(req, res) {
 
         let collegeId = await collegeModel.findOne({ name: collegeName }).select({ _id: 1, name: 1, fullName: 1, logoLink: 1 })
         if (!collegeId) {
-            return res.status(404).send({ status: false, message: "No such College available" })
+            return res.status(404).send({ status: false, message: "No such College is available" })
         }
+
+        collegeId = JSON.parse(JSON.stringify(collegeId)) // Eliminates the extra keys added by the MongoDB.
 
         let intern = await internModel.find({ collegeId: collegeId._id }).select({ _id: 1, name: 1, email: 1, mobile: 1 })
         if (intern.length == 0) {
-            return res.status(404).send({ status: false, message: "No intern have applied to this college." })
+            let data = {...collegeId, intern: "No intern have applied to this college." }
+            return res.status(404).send({ status: false, message: data })
         }
 
-        collegeId = JSON.parse(JSON.stringify(collegeId))
-
-        let data = {...collegeId, intern: intern }
+        let data = {...collegeId, interns: intern }
 
         return res.status(200).send({ status: true, data })
     } catch (error) {
