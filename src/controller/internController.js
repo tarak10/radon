@@ -1,7 +1,6 @@
+const collegeModel = require('../model/collegeModel')
 const internModel = require('../model/internModel')
 const validator = require('validator')
-const mongoose = require('mongoose')
-const collegeModel = require('../model/collegeModel')
 const nullValue = function(value) {
     if (value == undefined || value == null) return true
     if (value.trim().length == 0) return true
