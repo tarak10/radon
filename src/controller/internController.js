@@ -81,20 +81,23 @@ const getInterns = async function(req, res) {
             return res.status(400).send({ status: false, message: 'College name is not mentioned.' })
         }
 
-        let collegeId = await collegeModel.findOne({ name: collegeName.toLowerCase() }).select({ _id: 1, name: 1, fullName: 1, logoLink: 1 })
+        let collegeId = await collegeModel.findOne({ name: collegeName.toLowerCase() }).select({ _id: 1 })
         if (!collegeId) {
             return res.status(404).send({ status: false, message: "No such College is available" })
         }
 
-        collegeId = JSON.parse(JSON.stringify(collegeId)) // Eliminates the extra keys added by the MongoDB.
 
         let intern = await internModel.find({ collegeId: collegeId._id }).select({ _id: 1, name: 1, email: 1, mobile: 1 })
+
+        let final = await collegeModel.findOne({ name: collegeName.toLowerCase() }).select({ _id: 0, name: 1, fullName: 1, logoLink: 1 })
+        final = JSON.parse(JSON.stringify(final))
+
         if (intern.length == 0) {
-            let data = {...collegeId, intern: "No intern have applied to this college." }
+            let data = {...final, intern: "No intern have applied to this college." }
             return res.status(404).send({ status: false, message: data })
         }
 
-        let data = {...collegeId, interns: intern }
+        let data = {...final, interns: intern }
 
         return res.status(200).send({ status: true, data })
     } catch (error) {

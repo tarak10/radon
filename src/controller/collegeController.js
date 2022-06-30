@@ -24,7 +24,6 @@ const createCollege = async function(req, res) {
         if (!/^[a-zA-Z]{3,10}$/.test(name)) {
             return res.status(400).send({ status: false, message: "Invalid College Name" })
         }
-        // let lowerCase = name.toLowerCase()
         const duplicateName = await collegeModel.findOne({ name: name.toLowerCase() }) //findOne will give us null so null is used as false in boolean
         if (duplicateName) {
             return res.status(400).send({ status: false, message: "The college name is already there, you can directly apply for the internship." })
