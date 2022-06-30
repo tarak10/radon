@@ -1,9 +1,8 @@
 const internModel = require('../model/internModel')
 const validator = require('validator')
+const mongoose = require('mongoose')
 const collegeModel = require('../model/collegeModel')
-
 const nullValue = function(value) {
-
     if (value == undefined || value == null) return true
     if (value.trim().length == 0) return true
     return false
@@ -62,7 +61,7 @@ const createIntern = async function(req, res) {
         if (!collegeId) {
             return res.status(400).send({ status: false, message: "Enter a valid college name." })
         }
-        final.collegeId = collegeId._id
+        final.collegeId = collegeId
 
 
         let saveData = await internModel.create(final)
@@ -84,7 +83,7 @@ const getInterns = async function(req, res) {
             return res.status(400).send({ status: false, message: 'College name is not mentioned!' })
         }
 
-        let collegeId = await collegeModel.findOne({ name: collegeName.toLowerCase() }).select({ _id: 1 })
+        let collegeId = await collegeModel.findOne({ name: collegeName.toLowerCase() }).select({ _id: 1, name: 1, fullName: 1, logoLink: 1 })
         if (!collegeId) {
             return res.status(404).send({ status: false, message: "No such College is available!" })
         }
@@ -93,16 +92,17 @@ const getInterns = async function(req, res) {
         let intern = await internModel.find({ collegeId: collegeId._id }).select({ _id: 1, name: 1, email: 1, mobile: 1 })
 
         // let final = await collegeModel.findOne({ name: collegeName.toLowerCase() }).select({ _id: 0, name: 1, fullName: 1, logoLink: 1 })
-        let final = { name: collegeId.name, email: collegeId.email, mobile: collegeId.mobile }
+        let final = { name: collegeId.name, fullName: collegeId.fullName, logoLink: collegeId.logoLink }
             //   final = JSON.parse(JSON.stringify(final))
 
         if (intern.length == 0) {
             let data = {...final, intern: "No intern have applied to this college!" }
             return res.status(404).send({ status: false, message: data })
         }
-        let data = {...final, interns: intern }
 
+        let data = {...final, interns: intern }
         return res.status(200).send({ status: true, data })
+
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
     }
