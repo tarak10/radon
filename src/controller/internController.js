@@ -11,7 +11,7 @@ const nullValue = function(value) {
 
 const createIntern = async function(req, res) {
     try {
-        let result = {}
+        let final = {}
         const { name, email, mobile, collegeName } = req.body
 
         if (Object.keys(req.body).length == 0) {
@@ -23,7 +23,7 @@ const createIntern = async function(req, res) {
         if (nullValue(name)) {
             return res.status(400).send({ status: false, message: "Invalid intern name or intern name is not mentioned." })
         }
-        result.name = name
+        final.name = name
 
 
         if (nullValue(email)) {
@@ -36,7 +36,7 @@ const createIntern = async function(req, res) {
         if (duplicateEmail) {
             return res.status(400).send({ status: false, message: "Intern email already exists." })
         }
-        result.email = email
+        final.email = email
 
 
         if (mobile == undefined || mobile == null) {
@@ -49,7 +49,7 @@ const createIntern = async function(req, res) {
         if (duplicateMobile) {
             return res.status(400).send({ status: false, message: "Intern mobile number already exists." })
         }
-        result.mobile = mobile
+        final.mobile = mobile
 
 
         if (!/^[a-zA-Z ]{3,20}$/.test(collegeName)) {
@@ -62,11 +62,14 @@ const createIntern = async function(req, res) {
         if (!collegeId) {
             return res.status(400).send({ status: false, message: "Enter a valid college name." })
         }
-        result.collegeId = collegeId._id
+        final.collegeId = collegeId._id
 
 
-        let saveData = await internModel.create(result)
-        return res.status(201).send({ status: true, data: { saveData } })
+        let saveData = await internModel.create(final)
+
+        let result = { isDeleted: saveData.isDeleted, name: saveData.name, email: saveData.email, mobile: saveData.mobile, collegeId: saveData.collegeId }
+
+        return res.status(201).send({ status: true, data: result })
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
     }
@@ -78,25 +81,25 @@ const getInterns = async function(req, res) {
         let collegeName = req.query.collegeName
 
         if (nullValue(collegeName)) {
-            return res.status(400).send({ status: false, message: 'College name is not mentioned.' })
+            return res.status(400).send({ status: false, message: 'College name is not mentioned!' })
         }
 
         let collegeId = await collegeModel.findOne({ name: collegeName.toLowerCase() }).select({ _id: 1 })
         if (!collegeId) {
-            return res.status(404).send({ status: false, message: "No such College is available" })
+            return res.status(404).send({ status: false, message: "No such College is available!" })
         }
 
 
         let intern = await internModel.find({ collegeId: collegeId._id }).select({ _id: 1, name: 1, email: 1, mobile: 1 })
 
-        let final = await collegeModel.findOne({ name: collegeName.toLowerCase() }).select({ _id: 0, name: 1, fullName: 1, logoLink: 1 })
-        final = JSON.parse(JSON.stringify(final))
+        // let final = await collegeModel.findOne({ name: collegeName.toLowerCase() }).select({ _id: 0, name: 1, fullName: 1, logoLink: 1 })
+        let final = { name: collegeId.name, email: collegeId.email, mobile: collegeId.mobile }
+            //   final = JSON.parse(JSON.stringify(final))
 
         if (intern.length == 0) {
-            let data = {...final, intern: "No intern have applied to this college." }
+            let data = {...final, intern: "No intern have applied to this college!" }
             return res.status(404).send({ status: false, message: data })
         }
-
         let data = {...final, interns: intern }
 
         return res.status(200).send({ status: true, data })

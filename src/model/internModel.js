@@ -32,6 +32,6 @@ const internSchema = new mongoose.Schema({
     deletedAt: Date
 
 
-}, { timestamps: true });
+}, { timestamps: false, versionKey: false });
 
 module.exports = mongoose.model('Interns', internSchema);

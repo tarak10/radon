@@ -2,7 +2,6 @@ const collegeModel = require('../model/collegeModel')
 const validator = require('validator')
 
 const nullValue = function(value) {
-
     if (value == undefined || value == null) return true
     if (typeof value !== 'string' || value.trim().length == 0) return true
     return false
@@ -55,7 +54,9 @@ const createCollege = async function(req, res) {
         console.log(final)
         let saveData = await collegeModel.create(final)
 
-        return res.status(201).send({ status: true, data: { saveData } })
+        let result = { name: saveData.name, fullName: saveData.fullName, logoLink: saveData.logoLink, isDeleted: saveData.isDeleted }
+
+        return res.status(201).send({ status: true, data: result })
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
