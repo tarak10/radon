@@ -1,4 +1,6 @@
+const  mongoose = require("mongoose")
 const bookModel = require("../models/bookModel")
+const userModel = require("../models/userModel")
 const validator = require('../validator/validator')
 //const mongoose=require('mongoose')
 
@@ -20,7 +22,11 @@ exports.createBook = async (req, res) => {
             return res.status(400).send({ status: false, msg: "excerpt required" })
         } if (!validator.isValid(userId)) {
             return res.status(400).send({ status: false, msg: "UserId required" })
-        } if (!validator.isValid(category)) {
+        } 
+        if (!validator.isValidObjectId(userId)) {
+            return res.status(403).send({ status: false, msg: "provide valid userId" })
+        } 
+        if (!validator.isValid(category)) {
             return res.status(400).send({ status: false, msg: "category required" })
         }
         if (!validator.isValid(ISBN)) {
