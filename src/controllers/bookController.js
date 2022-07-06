@@ -76,18 +76,18 @@ exports.getBooks = async (req, res) => {
         //validate =query params
         if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "Please enter data in query params" });
 
-         if (data.hasOwnProperty('userId')) {
-            if (!validator.isValidObjectId(data.userId)) return res.status(400).send({ status: false, message: "Enter a valid user id" });
-             let { ...tempData } = data;
-            delete (tempData.userId);
-             let checkValues = Object.values(tempData);
+    //      if (data.hasOwnProperty('userId')) {
+    //         if (!validator.isValidObjectId(data.userId)) return res.status(400).send({ status: false, message: "Enter a valid user id" });
+    //          let { ...tempData } = data;
+    //         delete (tempData.userId);
+    //          let checkValues = Object.values(tempData);
 
-            if (!validator.validString(checkValues)) return res.status(400).send({ status: false, message: "Filter data should not contain numbers excluding user id" })
-     } else {
-             //let checkValues = Object.values(data);
+    //         if (!validator.validString(checkValues)) return res.status(400).send({ status: false, message: "Filter data should not contain numbers excluding user id" })
+    //  } else {
+    //          //let checkValues = Object.values(data);
 
-             //if (!validator.validStr(checkValues)) return res.status(400).send({ status: false, message: "Filter data should not contain numbers excluding user id" })
-        }
+    //          //if (!validator.validStr(checkValues)) return res.status(400).send({ status: false, message: "Filter data should not contain numbers excluding user id" })
+    //     }
         data.isDeleted = false;
 
         let getFilterBooks = await bookModel.find(data).sort({ title: 1 }).select({ title: 1, excerpt: 1, userId: 1, category: 1, reviews: 1, releasedAt: 1 });
