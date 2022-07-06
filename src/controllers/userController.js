@@ -1,5 +1,7 @@
+
 const validateEmail = require('email-validator');
 const validatePassword = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,15}$/;
+const jwt = require('jsonwebtoken');
 
 
 
