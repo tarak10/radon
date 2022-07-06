@@ -2,8 +2,6 @@ const bookModel = require("../models/bookModel")
 const userModel = require("../models/userModel")
 const validator = require('../validator/validator')
 
-//var moment = require('moment');
-
 
 exports.createBook = async (req, res) => {
 
