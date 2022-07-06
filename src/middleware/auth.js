@@ -11,7 +11,7 @@ exports.authentication = async (req,res,next) => {
     
         let decodedToken = jwt.verify(token, "lama");
         if (!decodedToken) return res.status(401).send({ status: false, message: "Token is not valid" })
-        
+        req.decodedToken = decodedToken;
         next();
       } catch (err) { //hardcoded them
         if(err.message == "jwt expired") return res.status(400).send({ status: false, message: "JWT expired, login again" })
