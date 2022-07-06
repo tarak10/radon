@@ -5,10 +5,9 @@ const {createBook,getBooks} = require("../controllers/bookController")
 const {authentication,authorize} = require("../middleware/auth")
 
 
-//router.post('/register',createUser)
 
 
-
+router.post('/register',createUser)
 
 router.post('/login', userLogin)
 

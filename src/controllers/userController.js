@@ -2,6 +2,9 @@
 const validateEmail = require('email-validator');
 const validatePassword = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,15}$/;
 const jwt = require('jsonwebtoken');
+const {isValid}= require('../validator/validator')
+const bookModel = require("../models/bookModel")
+const userModel = require("../models/userModel")
 
 
 exports.createUser = async (req, res) => {
@@ -85,8 +88,8 @@ exports.createUser = async (req, res) => {
 
         }
 
-        if (!validatePassword.test(password)) 
-        return res.status(400).send({ status: false, message: "Enter valid Password" });
+         if (!validatePassword.test(password)) 
+         return res.status(400).send({ status: false, message: "Enter valid Password" });
     
 
         if (!isValid(address)) {
@@ -94,6 +97,10 @@ exports.createUser = async (req, res) => {
                 .status(400)
                 .send({ status: false, message: "address is required" });
         }
+
+        const saveUser = await userModel.create(userData)
+        return res.status(201).send({ status: true, message: "User successfully created", data: saveUser })
+    
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
@@ -114,7 +121,7 @@ exports.userLogin = async (req, res) => {
 
         if (!validatePassword.test(password)) return res.status(400).send({ status: false, message: "Enter valid Password" });
 
-        let validUser = await userSchema.findOne({ email: email, password: password });
+        let validUser = await userModel.findOne({ email: email, password: password });
 
        if (!validUser)  //checking user data is available or not    
            return res.status(400).send({

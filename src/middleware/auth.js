@@ -1,11 +1,11 @@
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
-const userModel = require
+const userModel = require("../models/userModel")
 const { isValidObjectId } = require('../validator/validator')
 exports.authentication = async (req, res, next) => {
 
     try {
-        let token = req.headers['x-Api-key'];
+        let token = req.headers['X-API-KEY'];
         if (!token) {
             token = req.headers['x-api-key'];
         }
@@ -51,6 +51,6 @@ exports.authorize = async function (req, res, next) {
         return res.status(403).send({status: false , message :"Unauthorized to access"})
         next()
     } catch (error) {
-       return  res.status(500).send({ status: false, error: err.message })
+       return  res.status(500).send({ status: false, error: error.message })
     }
     }
