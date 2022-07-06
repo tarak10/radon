@@ -5,6 +5,16 @@
      return true
 }
 
-exports.isValidrequestBody = function (data) {
-   return Object.keys(data).length > 0;
+exports.validString = (String) => {
+   if (/\d/.test(String)) {
+     return true
+   } else {
+     return false;
+   };
+ };
+
+
+
+ exports.isValidObjectId = (objectId) => {
+   return mongoose.Types.ObjectId.isValid(objectId)
  };

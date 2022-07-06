@@ -58,14 +58,14 @@ const bookSchema = new mongoose.Schema({
         default: false
     },
     releasedAt: {
-        type: String,  //Date
+        type: Date, 
         required: true,
         trim: true
     },
 
 }, { timestamps: true })
 
-module.exports = mongoose.model("Books", bookSchema)
+module.exports = mongoose.model("Book", bookSchema)
 
 
     
