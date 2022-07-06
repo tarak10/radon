@@ -3,7 +3,7 @@ const validateEmail = require('email-validator');
 const validatePassword = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,15}$/;
 const jwt = require('jsonwebtoken');
 const {isValid}= require('../validator/validator')
-//const bookModel = require("../models/bookModel")
+const bookModel = require("../models/bookModel")
 const userModel = require("../models/userModel")
 
 
@@ -36,7 +36,7 @@ exports.createUser = async (req, res) => {
                 .status(400)
                 .send({ status: false, message: "Name is required" });
         }
-        if (!/^[a-z,',-]+(\s)[a-z,',-]+$/i.test(name)) {
+        if (!/^[ a-z ]+$/i.test(name)) {
             res
                 .status(400)
                 .send({ status: false, message: "Name should be in valid format" });
