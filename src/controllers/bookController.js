@@ -1,7 +1,6 @@
 const bookModel = require("../models/bookModel")
 const validator = require('../validator/validator')
-//const mongoose=require('mongoose')
-
+const moment = require('moment');
 
 exports.createBook = async (req,res) =>{
     
@@ -9,7 +8,7 @@ try {
     
     const data =req.body
 const {title, excerpt , userId , ISBN , category ,  subcategory, releasedAt} = data
-
+const todayDateFormat = moment(releasedAt, 'YYYY-MM-DD').format('YYYY-MM-DD');
 if(Object.keys(data).length == 0)
 return res.status(400).send({ status: false, msg: "you have to enter all details" })
 
