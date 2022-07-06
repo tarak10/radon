@@ -2,7 +2,7 @@
 const validateEmail = require('email-validator');
 const validatePassword = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,15}$/;
 const jwt = require('jsonwebtoken');
-const {isValid}= require('../validator/validator')
+const { isValid } = require('../validator/validator')
 const bookModel = require("../models/bookModel")
 const userModel = require("../models/userModel")
 
@@ -49,7 +49,7 @@ exports.createUser = async (req, res) => {
                 .send({ status: false, message: "Phone number is required" });
         }
         if (!/^[6-9]\d{9}$/.test(phone)) {
-            
+
             return res.status(400).send({
                 status: false,
                 message: "Phone number should be in valid format",
@@ -71,8 +71,8 @@ exports.createUser = async (req, res) => {
                 .send({ status: false, message: "email is required" });
         }
 
-        if (!validateEmail.validate(email)) 
-        return res.status(400).send({ status: false, msg: "Enter a valid email" })
+        if (!validateEmail.validate(email))
+            return res.status(400).send({ status: false, msg: "Enter a valid email" })
 
         const emailUsed = await userModel.findOne({ email: email });
         if (emailUsed) {
@@ -88,9 +88,9 @@ exports.createUser = async (req, res) => {
 
         }
 
-         if (!validatePassword.test(password)) 
-         return res.status(400).send({ status: false, message: "Enter valid Password" });
-    
+        if (!validatePassword.test(password))
+            return res.status(400).send({ status: false, message: "Enter valid Password" });
+
 
         if (!isValid(address)) {
             return res
@@ -100,7 +100,7 @@ exports.createUser = async (req, res) => {
 
         const saveUser = await userModel.create(userData)
         return res.status(201).send({ status: true, message: "User successfully created", data: saveUser })
-    
+
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
@@ -123,14 +123,14 @@ exports.userLogin = async (req, res) => {
 
         let validUser = await userModel.findOne({ email: email, password: password });
 
-       if (!validUser)  //checking user data is available or not    
-           return res.status(400).send({
-               status: false,
-               msg: "User not found",
-           });
-       let token = jwt.sign({ userId: validUser._id }, 'lama', { expiresIn: '6d' }); //generate jwt token at succesfull login 
-      return res.status(200).send({ status: true, message: "Login Successfully", data: { token } });
-}catch(error){
-        return res.status(500).send({status: false, message: error.message})
+        if (!validUser)  //checking user data is available or not    
+            return res.status(400).send({
+                status: false,
+                msg: "User not found",
+            });
+        let token = jwt.sign({ userId: validUser._id }, 'lama', { expiresIn: '6d' }); //generate jwt token at succesfull login 
+        return res.status(200).send({ status: true, message: "Login Successfully", data: { token } });
+    } catch (error) {
+        return res.status(500).send({ status: false, message: error.message })
     }
 }
