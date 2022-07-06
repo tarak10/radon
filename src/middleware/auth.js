@@ -23,7 +23,7 @@ if(!mongoose.Types.ObjectId.isValid(userId)){
     return res.status(403).send("Provide valid userId")
 }
 
-const data = await userModel.findById(userId)
+const data = await userModel.findById()
     } catch (error) {
         
     }
