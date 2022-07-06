@@ -19,6 +19,8 @@
   "homepage": "https://github.com/ranjeetsingh23/project-3-bookmanagement#readme",
   "dependencies": {
     "express": "^4.18.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.4.3",
     "nodemon": "^2.0.19"
   }
 }
