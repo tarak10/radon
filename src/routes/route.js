@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {createUser , userLogin,} = require("../controllers/userController")
 const {createBook,getBooks} = require("../controllers/bookController")
-const {authentication} = require("../middleware/auth")
+const {authentication,authorize} = require("../middleware/auth")
 
 
 //router.post('/register',createUser)
@@ -12,7 +12,7 @@ const {authentication} = require("../middleware/auth")
 
 router.post('/login', userLogin)
 
-router.post('/books',authentication, createBook)
+router.post('/books',authentication, authorize, createBook)
 
 router.get('/books',authentication, getBooks)
 

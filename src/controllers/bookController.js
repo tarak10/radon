@@ -23,7 +23,7 @@ exports.createBook = async (req, res) => {
         } if (!validator.isValid(userId)) {
             return res.status(400).send({ status: false, msg: "UserId required" })
         } 
-        if (!mongoose.Types.ObjectId.isValid(userId)) {
+        if (!validator.isValidObjectId(userId)) {
             return res.status(403).send({ status: false, msg: "provide valid userId" })
         } 
         if (!validator.isValid(category)) {
