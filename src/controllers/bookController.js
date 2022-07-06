@@ -1,15 +1,15 @@
 const bookModel = require("../models/bookModel")
 const validator = require('../validator/validator')
 
-const createBook = async function (){
+exports.createBook = async (req,res) =>{
     
 
 try {
     
-const {title, excerpt , userId , ISBN , category ,  subcategory, reviews, releasedAt}=req.body
-const filterQuery = { isDeleted: false }
+    const data =req.body
+const {title, excerpt , userId , ISBN , category ,  subcategory, releasedAt} = data
 
-if(!(title && excerpt &&  userId && ISBN && category && subcategory))
+if(Object.keys(data).length == 0)
 return res.status(400).send({ status: false, msg: "you have to enter all compulsory details" })
 
 if (!validator.isValid(title)) {
@@ -28,6 +28,9 @@ if (!validator.isValid(subcategory)) {
 if (!validator.isValid(releasedAt)) {
     return res.status(400).send({ status: false, msg: "releasedAt required" })
 }
+
+const checkUserId = await userModel.findOne({userId:userId})
+if(!checkUserId){return res.status(400).send({ status: false, msg: "UserId not found" })}
 
 const checktitle = await bookModel.findOne({title:title})
 if(checktitle){return res.status(400).send({ status: false, msg: "title already exists please enter new title" })}
