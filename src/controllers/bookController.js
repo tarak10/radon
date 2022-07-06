@@ -7,8 +7,8 @@ exports.createBook = async (req,res) =>{
     
 try {
     
-    const data =req.body
-const {title, excerpt , userId , ISBN , category ,  subcategory, releasedAt} = data
+    let data =req.body
+let {title, excerpt , userId , ISBN , category ,  subcategory, releasedAt} = data
 
 if(Object.keys(data).length == 0)
 return res.status(400).send({ status: false, msg: "you have to enter all details" })
