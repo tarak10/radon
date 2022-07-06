@@ -12,7 +12,7 @@ exports.createUser = async (req, res) => {
 
         const { title, name, phone, email, password, address } = userData
 
-        if (!isValidrequestBody(req.body)) {
+        if (Object.keys(userData).length == 0) {
             return res.status(400).send({
                 status: false,
                 message: "Invalid request parameters. Please provide user details",
