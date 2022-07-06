@@ -6,13 +6,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         enum: [Mr, Mrs, Miss]
-
     },
 
     name: {
         type: String,
-        required: true,
-
+        required: true
     },
 
     phone: {
