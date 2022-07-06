@@ -36,7 +36,7 @@ exports.createUser = async (req, res) => {
                 .status(400)
                 .send({ status: false, message: "Name is required" });
         }
-        if (!/^[a-z,',-]+(\s)[a-z,',-]+$/i.test(name)) {
+        if (!/^[a-zA-Z]+$/.test(name)) {
             res
                 .status(400)
                 .send({ status: false, message: "Name should be in valid format" });
