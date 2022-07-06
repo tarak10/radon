@@ -1,8 +1,8 @@
 
 const validateEmail = require('email-validator');
-const validatePassword = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,15}$/;
+
 const jwt = require('jsonwebtoken');
-const {isValid}= require('../validator/validator')
+const {isValid,isValidPassword}= require('../validator/validator')
 //const bookModel = require("../models/bookModel")
 const userModel = require("../models/userModel")
 
@@ -36,7 +36,7 @@ exports.createUser = async (req, res) => {
                 .status(400)
                 .send({ status: false, message: "Name is required" });
         }
-        if (!/^[a-zA-Z]+$/.test(name)) {
+        if (!/^[ a-z ]+$/i.test(name)) {
             res
                 .status(400)
                 .send({ status: false, message: "Name should be in valid format" });
@@ -88,9 +88,9 @@ exports.createUser = async (req, res) => {
 
         }
 
-         if (!validatePassword.test(password)) 
-         return res.status(400).send({ status: false, message: "Enter valid Password" });
-    
+        if (!isValidPassword(password)) {
+            return res.status(400).send({ status: false, message: "Password should be between 8 and 15 characters." })
+        };
 
         if (!isValid(address)) {
             return res
@@ -116,10 +116,6 @@ exports.userLogin = async (req, res) => {
         if (!email) return res.status(400).send({ status: false, message: "Email ID is required" });
 
         if (!password) return res.status(400).send({ status: false, message: "Password is required" });
-
-        if (!validateEmail.validate(email)) return res.status(400).send({ status: false, message: "Enter valid Email ID" });
-
-       if (!validatePassword.test(password)) return res.status(400).send({ status: false, message: "Enter valid Password" });
 
         let validUser = await userModel.findOne({ email: email, password: password });
 

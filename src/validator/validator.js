@@ -19,4 +19,8 @@ exports.validString = (String) => {
    return mongoose.Types.ObjectId.isValid(objectId)
  };
 
- 
+ exports.isValidPassword = function(password){
+  if(password.length < 8 || password.length > 15){
+      return false
+  } return true
+}
