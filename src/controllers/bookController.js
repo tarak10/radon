@@ -80,7 +80,7 @@ exports.getBooks = async (req, res) => {
         }
         data.isDeleted = false;
 
-        let getFilterBooks = await Book.find(data).sort({ title: 1 }).select({ title: 1, excerpt: 1, userId: 1, category: 1, reviews: 1, releasedAt: 1 });
+        let getFilterBooks = await bookModel.find(data).sort({ title: 1 }).select({ title: 1, excerpt: 1, userId: 1, category: 1, reviews: 1, releasedAt: 1 });
 
         if (getFilterBooks.length == 0) return res.status(404).send({ status: false, message: "No books found" });
         res.status(200).send({ status: true, count: getFilterBooks.length, message: "Books list", data: getFilterBooks });
