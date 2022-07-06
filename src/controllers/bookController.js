@@ -1,8 +1,6 @@
 const bookModel = require("../models/bookModel")
 const validator = require('../validator/validator')
-//const mongoose=require('mongoose')
-
-
+const userModel=require("../models/userModel")
 exports.createBook = async (req,res) =>{
     
 try {
@@ -18,25 +16,29 @@ if (!validator.isValid(title)) {
 }
 if (!validator.isValid(excerpt)) {
     return res.status(400).send({ status: false, msg: "excerpt required" })
+
 }if (!validator.isValid(userId)) {
     return res.status(400).send({ status: false, msg: "UserId required" })
+
 }if (!validator.isValid(category)) {
     return res.status(400).send({ status: false, msg: "category required" })
+
 }
 if (!validator.isValid(ISBN)) {
     return res.status(400).send({ status: false, msg: "ISBN required" })
 }
-if(!/^(\d{13})?$/.test(ISBN)){
+if(!/^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/.test(ISBN)){
     return res.status(400).send({ status: false, msg: "Please enter a valid ISBN number" })
 }
 if (!validator.isValid(subcategory)) {
+    
     return res.status(400).send({ status: false, msg: "subcategory required" })
 }
 if (!validator.isValid(releasedAt)) {
     return res.status(400).send({ status: false, msg: "releasedAt required" })
 }
 
-const checkUserId = await userModel.findOne({userId:userId})
+const checkUserId = await userModel.findOne({_id:userId})
 if(!checkUserId){return res.status(400).send({ status: false, msg: "UserId not found" })}
 
 const checktitle = await bookModel.findOne({title:title})

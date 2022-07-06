@@ -14,7 +14,7 @@ router.post('/login', userLogin)
 
 router.post('/books',createBook)
 
-//router.get('/books', getBooks)
+router.get('/books', getBooks)
 
 module.exports = router;
 
