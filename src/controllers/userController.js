@@ -36,7 +36,7 @@ exports.createUser = async (req, res) => {
                 .status(400)
                 .send({ status: false, message: "Name is required" });
         }
-        if (!/^[a-zA-Z]+$/.test(name)) {
+        if (!/^[ a-z ]+$/i.test(name)) {
             res
                 .status(400)
                 .send({ status: false, message: "Name should be in valid format" });
@@ -92,12 +92,6 @@ exports.createUser = async (req, res) => {
             return res.status(400).send({ status: false, message: "Enter valid Password" });
 
 
-        if (!isValid(address)) {
-            return res
-                .status(400)
-                .send({ status: false, message: "address is required" });
-        }
-
         const saveUser = await userModel.create(userData)
         return res.status(201).send({ status: true, message: "User successfully created", data: saveUser })
 
@@ -116,10 +110,6 @@ exports.userLogin = async (req, res) => {
         if (!email) return res.status(400).send({ status: false, message: "Email ID is required" });
 
         if (!password) return res.status(400).send({ status: false, message: "Password is required" });
-
-        if (!validateEmail.validate(email)) return res.status(400).send({ status: false, message: "Enter valid Email ID" });
-
-        if (!validatePassword.test(password)) return res.status(400).send({ status: false, message: "Enter valid Password" });
 
         let validUser = await userModel.findOne({ email: email, password: password });
 
