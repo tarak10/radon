@@ -22,3 +22,6 @@ exports.validString = (String) => {
  };
 
  
+ exports.isvalidDate = (date) => {
+  
+ }
