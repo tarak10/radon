@@ -144,6 +144,8 @@ exports.updateBooksById = async (req, res) => {
         let book = await bookModel.findById(bookId)
         if (!book || book.isDeleted == true) { return res.status(404).send({ status: false, message: "book not found" }) }
 
+       
+
         // if (!/^(\d{13})?$/.test(ISBN)) {
         //     return res.status(400).send({ status: false, message: "Please enter a valid ISBN number" })
         // }
@@ -157,10 +159,16 @@ exports.updateBooksById = async (req, res) => {
             return res.status(400).send({ status: false, message: `${title} is already exists please enter new title` })
         }
 
-        const dublicateISBN = await bookModel.findOne({ ISBN: ISBN })
+        if (ISBN) {
+            if (!validator.isValidIsbn(ISBN)) {
+                return res.status(400).send({ status: false, message: "ISBN is in incorrect format" })
+            }
+            
+        let dublicateISBN = await bookModel.findOne({ ISBN: ISBN })
         if (dublicateISBN) {
             return res.status(400).send({ status: false, message: `ISBN already exists please enter new ISBN` })
         }
+    }
 
         if (releasedAt) {
             if (!validator.isValid(releasedAt)) {
@@ -171,8 +179,7 @@ exports.updateBooksById = async (req, res) => {
             }
         }
 
-        // if (!/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(releasedAt)) { return res.status(400).send({ status: false, msg: "Please enter date in YYYY-MM-DD" }) }
-
+       
         const updateBook = await bookModel.findOneAndUpdate({ _id: bookId }, { title: title, excerpt: excerpt, releasedAt: releasedAt, $set: { ISBN: ISBN } }, { new: true })
         { return res.status(200).send({ status: true, message: "Updated Succesfully", data: updateBook }) }
 
