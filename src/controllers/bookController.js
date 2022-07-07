@@ -59,11 +59,9 @@ exports.createBook = async (req, res) => {
     }
 
 
-     catch (error) {
+    catch (error) {
         return res.status(500).send({ status: false, msg: error.message })
     }
-
-
 }
 
 
@@ -100,5 +98,33 @@ exports.getBooks = async (req, res) => {
     }
 }
 
+exports.deleteBookById = async (req, res) => {
 
+    try {
 
+        let id = req.params.bookId;
+        if (!validator.isValidObjectId(id)) {
+            return res.status(400).send({ status: false, msg: `BookId is invalid.` });
+        }
+
+        let Book = await bookModel.findOne({ _id: id, isDeleted: true });
+        if (!Book) {
+            return res.status(404).send({ status: false, msg: "No such Book found" });
+        }
+
+        if (Book.isDeleted == false) {
+            let Update = await bookModel.findOneAndUpdate(
+                { _id: id },
+                { isDeleted: true, deletedAt: Date() },
+                { new: true });
+            return res.status(200).send({ status: true, msg: "Your data deleted successfully" });
+
+        } else {
+            return res
+                .status(404)
+                .send({ status: false, msg: "Book already deleted" });
+        }
+    } catch (err) {
+        res.status(500).send({ status: false, msg: err.message });
+    }
+}
