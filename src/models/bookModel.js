@@ -36,13 +36,13 @@ const bookSchema = new mongoose.Schema({
         lowerCase:true
     },
 
-    subcategory: [{
-        type: String,
+    subcategory: {
+        type: [String],
         required: true,
         trim: true,
         lowerCase:true
 
-   }],
+   },
 
 
     reviews: {
