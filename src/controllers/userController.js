@@ -13,7 +13,7 @@ exports.createUser = async (req, res) => {
 
         let userData = req.body;
 
-        const { title, name, phone, email, password, address } = userData
+        const { title, name, phone, email, password,} = userData
 
         if (Object.keys(userData).length == 0) {
             return res.status(400).send({

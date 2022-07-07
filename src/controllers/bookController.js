@@ -106,7 +106,7 @@ exports.deleteBookById = async (req, res) => {
             return res.status(400).send({ status: false, msg: `BookId is invalid.` });
         }
 
-        let Book = await bookModel.findOne({ _id: id });
+        let Book = await bookModel.findOne({ _id: id, isDeleted: true });
         if (!Book) {
             return res.status(404).send({ status: false, msg: "No such Book found" });
         }
@@ -116,12 +116,12 @@ exports.deleteBookById = async (req, res) => {
                 { _id: id },
                 { isDeleted: true, deletedAt: Date() },
                 { new: true });
-            return res.status(200).send({ status: true, data: Update, });
+            return res.status(200).send({ status: true, msg: "Your data deleted successfully" });
 
         } else {
             return res
                 .status(404)
-                .send({ status: false, msg: "Book already deleted" });.
+                .send({ status: false, msg: "Book already deleted" });
         }
     } catch (err) {
         res.status(500).send({ status: false, msg: err.message });
