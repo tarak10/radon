@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose")
 const bookModel = require("../models/bookModel")
 const userModel = require("../models/userModel")
 const validator = require('../validator/validator')
@@ -18,11 +19,11 @@ exports.createBook = async (req, res) => {
         }
         if (!validator.isValid(excerpt)) {
             return res.status(400).send({ status: false, msg: "excerpt required" })
-        } if (!validator.isValid(userId)) {
+        } if (!userId) {
             return res.status(400).send({ status: false, msg: "UserId required" })
         } 
-        if (!validator.isValidObjectId(userId)) {
-            return res.status(403).send({ status: false, msg: "provide valid userId" })
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(403).send({ status: false, msg: "provide valid userId"})
         } 
         if (!validator.isValid(category)) {
             return res.status(400).send({ status: false, msg: "category required" })
@@ -40,8 +41,8 @@ exports.createBook = async (req, res) => {
             return res.status(400).send({ status: false, msg: "releasedAt required" })
         }
         
-        if(!/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(releasedAt)) 
-        { return res.status(400).send({ status: false, msg: "Please enter date in YYYY-MM-DD" }) }
+         if(!/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(releasedAt)) 
+         { return res.status(400).send({ status: false, msg: "Please enter date in YYYY-MM-DD" }) }
 
 
         const checkUserId = await userModel.findOne({ userId: userId })
@@ -52,7 +53,7 @@ exports.createBook = async (req, res) => {
 
         const checkIsbn = await bookModel.findOne({ ISBN: ISBN })
         if (checkIsbn) { return res.status(400).send({ status: false, msg: "ISBN already exists please enter new ISBN" }) }
-
+        data.releasedAt=moment().format("YYYY-MM-DD,hh:mm:ss")  
         const saveBook = await bookModel.create(req.body)
         return res.status(201).send({ status: true, message: "Book successfully created", data: saveBook })
     }
@@ -97,35 +98,7 @@ exports.getBooks = async (req, res) => {
     } catch (err) {
         return res.status(500).send({ status: false, msg: err.message });
     }
-
-    // try {
-
-    //     let data = req.query;
-
-    //     //validate =query params
-    //     if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "Please enter data in query params" });
-
-    // //      if (data.hasOwnProperty('userId')) {
-    // //         if (!validator.isValidObjectId(data.userId)) return res.status(400).send({ status: false, message: "Enter a valid user id" });
-    // //          let { ...tempData } = data;
-    // //         delete (tempData.userId);
-    // //          let checkValues = Object.values(tempData);
-
-    // //         if (!validator.validString(checkValues)) return res.status(400).send({ status: false, message: "Filter data should not contain numbers excluding user id" })
-    // //  } else {
-    // //          //let checkValues = Object.values(data);
-
-    // //          //if (!validator.validStr(checkValues)) return res.status(400).send({ status: false, message: "Filter data should not contain numbers excluding user id" })
-    // //     }
-    //     data.isDeleted = false;
-
-    //     let getFilterBooks = await bookModel.find(data).sort({ title: 1 }).select({ title: 1, excerpt: 1, userId: 1, category: 1, reviews: 1, releasedAt: 1 });
-
-    //     if (getFilterBooks.length == 0) return res.status(404).send({ status: false, message: "No books found" });
-    //     res.status(200).send({ status: true, count: getFilterBooks.length, message: "Books list", data: getFilterBooks });
-
-    // } catch (error) {
-    //     return res.status(500).send({ status: false, message: error.message });
-
-    // }
 }
+
+
+

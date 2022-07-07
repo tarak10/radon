@@ -39,9 +39,9 @@ exports.authorize = async function (req, res, next) {
         let userlogging= req.decodedToken.userId
         let loggedinUser;
 
-        if (!isValidObjectId(userId)) {
-            return res.status(403).send("Provide valid userId")
-        }
+        // if (!isValidObjectId(userId)) {
+        //     return res.status(403).send("Provide valid userId")
+        // }
 
         const data = await userModel.findById(userId)
         if (!data) return res.status(404).send("UserId not found ")
