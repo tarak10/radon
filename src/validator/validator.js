@@ -14,7 +14,9 @@ exports.validString = (String) => {
  };
 
 
-
+ exports.isValidRequestBody = function (requestBody) {
+  return Object.keys(requestBody).length > 0;
+}
  exports.isValidObjectId = (objectId) => {
    return mongoose.Types.ObjectId.isValid(objectId)
  };
