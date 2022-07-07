@@ -1,4 +1,5 @@
-const bookModel = require("../models/bookModel")
+const bookModel = require("../models/bookModel");
+const reviewModel = require("../models/reviewModel");
 exports.getBooksById =async function (){
 
     try {
@@ -12,7 +13,7 @@ exports.getBooksById =async function (){
    const checkBookId = await bookModel.findOne({_id:bookId ,isDeleted:false})
   if (!checkBookId) { return res.status(400).send({ status: false, msg: "bookId not found" }) }
   
-    const getBookDetails= await bookModel.find() 
+    const getBookDetails= await reviewModel.find() 
         
     } catch (error) {
         
