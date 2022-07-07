@@ -24,11 +24,7 @@ exports.createBook = async (req, res) => {
         } if (!userId) {
             return res.status(400).send({ status: false, msg: "UserId required" })
         }
-<<<<<<< HEAD
-        if (!mongoose.Types.ObjectId.isValid(userId)) {
-=======
         if (!validator.isValidObjectId(userId)) {
->>>>>>> c4f314f0ba312cca7f9dbe53376ed89451ca0404
             return res.status(403).send({ status: false, msg: "provide valid userId" })
         }
         if (!validator.isValid(category)) {
@@ -46,11 +42,6 @@ exports.createBook = async (req, res) => {
         if (!validator.isValid(releasedAt)) {
             return res.status(400).send({ status: false, msg: "releasedAt required" })
         }
-<<<<<<< HEAD
-
-        if (!/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(releasedAt)) { return res.status(400).send({ status: false, msg: "Please enter date in YYYY-MM-DD" }) }
-=======
->>>>>>> c4f314f0ba312cca7f9dbe53376ed89451ca0404
 
        if (!/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(releasedAt)) { return res.status(400).send({ status: false, msg: "Please enter date in YYYY-MM-DD" }) }
     //    data.releasedAt = moment().format("YYYY-MM-DD,hh:mm:ss")
@@ -119,29 +110,6 @@ exports.getBooks = async (req, res) => {
 
 
 
-<<<<<<< HEAD
-exports.getBooksById = async function () {
-
-    try {
-        let bookId = req.params
-
-
-        if (Object.keys(bookId).length == 0) return res.status(400).send({ status: false, message: "Please enter data in  params" });
-        if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).send({ status: false, message: "Please provide valid bookId" });
-
-
-        const book = await bookModel.findOne({ _id: bookId, isDeleted: false })
-        if (!book) { return res.status(400).send({ status: false, msg: "book not found" }) }
-        return res.status(200).send({ status: true, message: "Book List", data: book })
-
-        // const getBookDetails = await reviewModel.find() 
-
-    } catch (error) {
-
-
-
-
-=======
 exports.getBooksById = async function (req, res) {
 
     try {
@@ -163,7 +131,6 @@ exports.getBooksById = async function (req, res) {
 
     } catch (error) {
         return res.status(500).send({ status: false, error: error.message })
->>>>>>> c4f314f0ba312cca7f9dbe53376ed89451ca0404
     }
 
 
@@ -217,24 +184,6 @@ exports.updateBooksById = async (req, res) => {
 
 
 
-<<<<<<< HEAD
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-=======
->>>>>>> c4f314f0ba312cca7f9dbe53376ed89451ca0404
 exports.deleteBookById = async (req, res) => {
 
     try {
