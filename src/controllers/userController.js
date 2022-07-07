@@ -23,6 +23,7 @@ exports.createUser = async (req, res) => {
         }
 
         if (!title) return res.status(404).send({ status: false, msg: "title missing" })
+
         let validTitle = ['Mr', 'Mrs', 'Miss']; //validating the title
 
         //checking if the title is valid
@@ -30,23 +31,16 @@ exports.createUser = async (req, res) => {
             return res.status(400).send({ status: false, msg: "Title should be one of Mr, Mrs, Miss" });
 
 
-
         if (!isValid(name)) {
-            return res
-                .status(400)
-                .send({ status: false, message: "Name is required" });
+            return res.status(400).send({ status: false, message: "Name is required" });
         }
         if (!/^[ a-z ]+$/i.test(name)) {
-            res
-                .status(400)
-                .send({ status: false, message: "Name should be in valid format" });
+            res.status(400).send({ status: false, message: "Name should be in valid format" });
             return;
         }
 
         if (!isValid(phone)) {
-            return res
-                .status(400)
-                .send({ status: false, message: "Phone number is required" });
+            return res.status(400).send({ status: false, message: "Phone number is required" });
         }
         if (!/^[6-9]\d{9}$/.test(phone)) {
 
@@ -59,16 +53,12 @@ exports.createUser = async (req, res) => {
         const isPhone = await userModel.findOne({ phone: phone });
 
         if (isPhone) {
-            res
-                .status(400)
-                .send({ status: false, message: "Phone number already registered" });
+            res.status(400).send({ status: false, message: "Phone number already registered" });
             return;
         }
 
         if (!isValid(email)) {
-            return res
-                .status(400)
-                .send({ status: false, message: "email is required" });
+            return res.status(400).send({ status: false, message: "email is required" });
         }
 
         if (!validateEmail.validate(email))
@@ -76,15 +66,11 @@ exports.createUser = async (req, res) => {
 
         const emailUsed = await userModel.findOne({ email: email });
         if (emailUsed) {
-            return res
-                .status(400)
-                .send({ status: false, message: "Email is already registered" });
+            return res.status(400).send({ status: false, message: "Email is already registered" });
         }
 
         if (!isValid(password)) {
-            return res
-                .status(400)
-                .send({ status: false, message: "password is required" });
+            return res.status(400).send({ status: false, message: "password is required" });
 
         }
 
