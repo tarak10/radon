@@ -1,4 +1,6 @@
 const mongoose = require('mongoose')
+const moment = require('moment')
+
 exports.isValid = (value) => {
   if (typeof value === "undefined" || value === null) return false
   if (typeof value === "string" && value.trim().length === 0) return false
@@ -22,16 +24,16 @@ exports.isValidObjectId = (objectId) => {
 };
 
 
-exports.isValidDate = (Date) => {
-  if (/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(Date)) {
+exports.isValidDate = (date) => {
+  if (/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(date)) {
     return true
-  } else {
+  } else if (typeof date != "string") {
     return false;
   };
 }
 
 exports.isValidIsbn = (ISBN) => {
-  if (/^(\d{13})?$/.test(ISBN)) {
+  if (/^(?=(?:\D*\d){7}(?:(?:\D*\d){3})?$)[\d-]+$/.test(ISBN) || /^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/.test(ISBN)) {
     return true
   } else {
     return false;

@@ -1,9 +1,8 @@
-// const { default: mongoose } = require("mongoose")
+
 const bookModel = require("../models/bookModel")
 const userModel = require("../models/userModel")
 const validator = require('../validator/validator')
 const reviewModel = require("../models/reviewModel")
-const moment = require('moment')
 
 exports.createBook = async (req, res) => {
 
@@ -33,7 +32,7 @@ exports.createBook = async (req, res) => {
         if (!validator.isValid(ISBN)) {
             return res.status(400).send({ status: false, message: "ISBN required" })
         }
-        if (!/^(\d{13})?$/.test(ISBN)) {
+        if (!validator.isValidIsbn(ISBN)) {
             return res.status(400).send({ status: false, message: "Please enter a valid ISBN number" })
         }
         if (!validator.isValid(subcategory)) {
@@ -43,9 +42,12 @@ exports.createBook = async (req, res) => {
             return res.status(400).send({ status: false, message: "releasedAt required" })
         }
 
-        if (!/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(releasedAt)) { return res.status(400).send({ status: false, msg: "Please enter date in YYYY-MM-DD" }) }
-        //    data.releasedAt = moment().format("YYYY-MM-DD,hh:mm:ss")
-        //    if(!data.releasedAt) return res.status(400).send("please send date in correct")
+        if (data.isDeleted === true) {  //if document is set to deleted true it will create timestamp
+            let DeletedAt = new Date()
+            data.deletedAt = DeletedAt
+        }
+
+        if (!validator.isValidDate(releasedAt)) { return res.status(400).send({ status: false, msg: "Please enter date in YYYY-MM-DD" }) }
 
         const checkUserId = await userModel.findOne({ userId: userId })
         if (!checkUserId) { return res.status(400).send({ status: false, message: "UserId not found" }) }
@@ -79,7 +81,9 @@ exports.getBooks = async (req, res) => {
             return res.status(400).send({ status: false, message: "Please provide filter in query params" })
 
         }
-
+        if (query.userId) {
+            if (!validator.isValidObjectId(query.userId)) return res.status(400).send({ status: false, message: "Please Provide Valid User Id" });
+        }
         let filter = {
             isDeleted: false
         };
@@ -96,6 +100,7 @@ exports.getBooks = async (req, res) => {
         }
 
         let filterByquery = await bookModel.find(filter) //finding book from database 
+        if (filterByquery.length == 0) return res.status(404).send({ status: false, message: "No Book found" })
         return res.status(200).send({ message: filterByquery });
     } catch (err) {
         return res.status(500).send({ status: false, error: err.message });
@@ -112,7 +117,7 @@ exports.getBooksById = async function (req, res) {
         if (!validator.isValidObjectId(bookId)) return res.status(400).send({ status: false, message: "Please provide valid bookId" });
 
 
-        const book = await bookModel.findOne({ _id: bookId }).select({ __v: 0 })
+        const book = await bookModel.findOne({ _id: bookId }).select({ __v: 0, ISBN: 0 })
         if (!book) { return res.status(404).send({ status: false, message: "book not found" }) }
 
         if (book.isDeleted == true) return res.status(404).send({ status: false, message: "Book is deleted or not found" })
@@ -133,22 +138,22 @@ exports.getBooksById = async function (req, res) {
 exports.updateBooksById = async (req, res) => {
     try {
 
-        let bookId = req.params.bookId
+        let bookId = req.params.bookId;
+        let userloged = req.decodedToken;
         const { title, excerpt, releasedAt, ISBN } = req.body
 
         if (!validator.isValidObjectId(bookId)) return res.status(400).send({ status: false, message: "Please provide valid bookId" });
 
         if (Object.keys(req.body).length == 0) return res.status(400).send({ status: false, message: "Please enter data in  body" });
 
-
         let book = await bookModel.findById(bookId)
-        if (!book || book.isDeleted == true) { return res.status(404).send({ status: false, message: "book not found" }) }
+        if (!book || book.isDeleted == true) { return res.status(404).send({ status: false, message: "book not found or already deleted" }) }
 
-       
 
-        // if (!/^(\d{13})?$/.test(ISBN)) {
-        //     return res.status(400).send({ status: false, message: "Please enter a valid ISBN number" })
-        // }
+        if (book.userId != userloged) return res.status(403).send({ status: false, message: "Not Authorised" })
+
+
+
         if (!validator.isValid(title)) {
             return res.status(400).send({ status: false, message: "Enter title in correct format" })
         }
@@ -163,23 +168,20 @@ exports.updateBooksById = async (req, res) => {
             if (!validator.isValidIsbn(ISBN)) {
                 return res.status(400).send({ status: false, message: "ISBN is in incorrect format" })
             }
-            
-        let dublicateISBN = await bookModel.findOne({ ISBN: ISBN })
-        if (dublicateISBN) {
-            return res.status(400).send({ status: false, message: `ISBN already exists please enter new ISBN` })
+
+            let dublicateISBN = await bookModel.findOne({ ISBN: ISBN })
+            if (dublicateISBN) {
+                return res.status(400).send({ status: false, message: `ISBN already exists please enter new ISBN` })
+            }
         }
-    }
 
         if (releasedAt) {
-            if (!validator.isValid(releasedAt)) {
-                return res.status(400).send({ status: false, message: "releasedAt is required" })
-            };
-            if (!validator.isValidDate(releasedAt)) {
+            if (!validator.isValid(releasedAt) || !validator.isValidDate(releasedAt)) {
                 return res.status(400).send({ status: false, message: "releasedAt is in incorrect format (YYYY-MM-DD)" })
             }
         }
 
-       
+
         const updateBook = await bookModel.findOneAndUpdate({ _id: bookId }, { title: title, excerpt: excerpt, releasedAt: releasedAt, $set: { ISBN: ISBN } }, { new: true })
         { return res.status(200).send({ status: true, message: "Updated Succesfully", data: updateBook }) }
 

@@ -1,15 +1,20 @@
 const express = require('express');
 const router = express.Router();
+
 const {createUser , userLogin,} = require("../controllers/userController")
 const {createBook,getBooks, getBooksById,updateBooksById,deleteBookById } = require("../controllers/bookController")
 const {auth} = require("../middleware/auth")
 
 
-
+//===================================================[USER ROUTE HANDLER]===========================================================
 
 router.post('/register',createUser)
 
 router.post('/login', userLogin)
+
+
+//===================================================[BOOK ROUTE HANDLER]===========================================================
+
 
 router.post('/books',auth, createBook)
 
