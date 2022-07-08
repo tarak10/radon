@@ -211,7 +211,7 @@ exports.deleteBookById = async (req, res) => {
             }
 
             if (findbook.isDeleted == false) {
-                let Update = await bookModel.findOneAndUpdate(
+                await bookModel.findOneAndUpdate(
                     { _id: id },
                     {
                         isDeleted: true, deletedAt: new Date()
