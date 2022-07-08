@@ -22,13 +22,13 @@ exports.createUser = async (req, res) => {
             });
         }
 
-        if (!title) return res.status(404).send({ status: false, msg: "title missing" })
+        if (!title) return res.status(404).send({ status: false, message: "title missing" })
 
         let validTitle = ['Mr', 'Mrs', 'Miss']; //validating the title
 
         //checking if the title is valid
         if (!validTitle.includes(title))
-            return res.status(400).send({ status: false, msg: "Title should be one of Mr, Mrs, Miss" });
+            return res.status(400).send({ status: false, message: "Title should be one of Mr, Mrs, Miss" });
 
 
         if (!isValid(name)) {
@@ -92,7 +92,12 @@ exports.userLogin = async (req, res) => {
         let data = req.body;
 
         let { email, password } = data;
-
+        if (Object.keys(data).length == 0) {
+            return res.status(400).send({
+                status: false,
+                message: " Please provide user details",
+            });
+        }
         if (!email) return res.status(400).send({ status: false, message: "Email ID is required" });
 
         if (!password) return res.status(400).send({ status: false, message: "Password is required" });
