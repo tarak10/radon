@@ -83,7 +83,9 @@ exports.getBooks = async (req, res) => {
             return res.status(400).send({ status: false, message: "Please provide filter in query params" })
 
         }
-        if (!validator.isValidObjectId(req.query.userId)) return res.status(400).send({ status: false, message: "Please provide valid UserId" });
+       if (!validator.isValidObjectId(query.userId)) return res.status(400).send({ status: false, message: "Please provide valid UserId" });
+       
+
 
         let filter = {
             isDeleted: false
@@ -101,6 +103,7 @@ exports.getBooks = async (req, res) => {
         }
 
         let filterByquery = await bookModel.find(filter) //finding book from database 
+        if (filterByquery.length === 0) {return res.status(400).send({ message: "Please provide valid UserId" }); }
         return res.status(200).send({ message: filterByquery });
     } catch (err) {
         return res.status(500).send({ status: false, error: err.message });
@@ -173,14 +176,17 @@ exports.updateBooksById = async (req, res) => {
             }
         }
 
-        if (releasedAt) {
+      //  if (releasedAt) {
             if (!validator.isValid(releasedAt)) {
                 return res.status(400).send({ status: false, message: "releasedAt is required" })
             };
-            if (!validator.isValidDate(releasedAt)) {
-                return res.status(400).send({ status: false, message: "releasedAt is in incorrect format (YYYY-MM-DD)" })
-            }
-        }
+            // if (!validator.isValidDate(releasedAt)) {
+            //     return res.status(400).send({ status: false, message: "releasedAt is in incorrect format (YYYY-MM-DD)" })
+            // }
+      // }
+           if(!/((\d{4}[\/-])(\d{2}[\/-])(\d{2}))/.test(releasedAt)){
+           return res.status(400).send({ status: false, message: 'Please provide a valid Date(YYYY-MM-DD)' })}
+
 
 
         const updateBook = await bookModel.findOneAndUpdate({ _id: bookId }, { title: title, excerpt: excerpt, releasedAt: releasedAt, $set: { ISBN: ISBN } }, { new: true })
