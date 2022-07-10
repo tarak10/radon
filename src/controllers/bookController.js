@@ -88,6 +88,7 @@ exports.getBooks = async (req, res) => {
             isDeleted: false
         };
         if (Object.keys(query).length !== 0) { //this block will work in case filter is provided
+            
 
             if (query.subcategory) {
                 query.subcategory = { $in: query.subcategory.split(",") };
