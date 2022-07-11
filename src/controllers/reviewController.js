@@ -31,7 +31,7 @@ exports.createReview = async (req, res) => {
     data.bookId = id //storing bookId got from params inside reviews bookId
 
     let reviewData = await reviewModel.create(data)
-    
+
     await bookModel.updateOne(
       { _id: id },
       { $inc: { reviews: 1 } }
@@ -43,4 +43,53 @@ exports.createReview = async (req, res) => {
 
 
 
+}
+
+exports.updateReview = async (req,res) => {
+  try{
+
+    let data = req.body;
+    let {} = data;
+
+
+  }catch(error){
+    return res.status(500).send({status: false , message: error.message})
+  }
+}
+
+exports.deleteReview = async (req, res) => {
+  try {
+
+    let data = req.params;
+    let { bookId, reviewId } = data;
+
+    if (!validator.isValidObjectId(bookId)) return res.status(400).send({ status: false, message: "Please enter valid bookID" })
+
+    if (!validator.isValidObjectId(reviewId)) return res.status(400).send({ status: false, message: "Please enter valid reviewID" })
+
+    let book = await bookModel.findById(bookId);
+    if (!book) return res.status(404).send({ status: false, message: "Book not found" });
+
+    if (book.isDeleted == true) return res.status(404).send({ status: false, message: "Book is already deleted" });
+
+    let review = await reviewModel.findById(reviewId);
+    if (!review) return res.status(404).send({ status: false, message: "Review not found" });
+
+    if(review.bookId.toString() !== bookId) return res.status(400).send({status: false, message: "Please enter correct bookId"})
+
+    if (review.isDeleted == true) return res.status(404).send({ status: false, message: "Review is already deleted" });
+
+    await reviewModel.updateOne(
+      { _id: reviewId },
+      { isDeleted: true }
+    )
+
+    await bookModel.updateOne(
+      { _id: reviewId },
+      { $inc: { reviews: -1 } }
+    )
+    return res.status(200).send({ status: true, message: "Review Deleted Successfully" });
+  } catch (error) {
+    return res.status(500).send({ status: false, message: error.message })
+  }
 }
