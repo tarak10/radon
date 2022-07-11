@@ -4,7 +4,7 @@ const router = express.Router();
 const {createUser , userLogin,} = require("../controllers/userController")
 const {createBook,getBooks, getBooksById,updateBooksById,deleteBookById } = require("../controllers/bookController")
 const {auth} = require("../middleware/auth");
-const { createReview, deleteReview} = require('../controllers/reviewController');
+const { createReview,updateReview, deleteReview} = require('../controllers/reviewController');
 
 
 //===================================================[USER ROUTE HANDLER]===========================================================
@@ -28,6 +28,8 @@ router.put('/books/:bookId',auth, updateBooksById)
 router.delete('/books/:bookId',auth,deleteBookById)
 
 router.post('/books/:bookId/review', createReview)
+
+router.put('/books/:bookId/review/:reviewId', updateReview)
 
 router.delete('/books/:bookId/review/:reviewId', deleteReview)
 

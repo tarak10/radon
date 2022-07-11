@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-exports.authentication = async (req, res, next) => {
+exports.auth = async (req, res, next) => {
 
   try {
     let token = req.headers['X-API-KEY'];
