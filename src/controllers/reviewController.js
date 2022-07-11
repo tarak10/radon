@@ -48,8 +48,30 @@ exports.createReview = async (req, res) => {
 exports.updateReview = async (req,res) => {
   try{
 
+    let id = req.params;
+    let { bookId, reviewId } = id;
+
+    if (!validator.isValidObjectId(bookId)) return res.status(400).send({ status: false, message: "Please enter valid bookID" })
+
+    if (!validator.isValidObjectId(reviewId)) return res.status(400).send({ status: false, message: "Please enter valid reviewID" })
+
+    let book = await bookModel.findById(bookId);
+    if (!book) return res.status(404).send({ status: false, message: "Book not found" });
+
+    if (book.isDeleted == true) return res.status(404).send({ status: false, message: "Book is already deleted" });
+
+    let checkReview = await reviewModel.findById(reviewId);
+    if (!checkReview) return res.status(404).send({ status: false, message: "Review not found" });
+
+    if(checkReview.bookId.toString() !== bookId) return res.status(400).send({status: false, message: "Please enter correct bookId"})
+
+    if (checkReview.isDeleted == true) return res.status(404).send({ status: false, message: "Review is already deleted" });
+     
     let data = req.body;
-    let {} = data;
+
+    let { review, rating, reviewedBy} = data;
+
+    
 
 
   }catch(error){
