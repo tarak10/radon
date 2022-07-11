@@ -22,7 +22,7 @@ exports.createUser = async (req, res) => {
             });
         }
 
-        if (!title) return res.status(404).send({ status: false, message: "title missing" })
+        if (!isValid(title)) return res.status(404).send({ status: false, message: "title missing" })
 
         let validTitle = ['Mr', 'Mrs', 'Miss']; //validating the title
 
@@ -102,12 +102,15 @@ exports.userLogin = async (req, res) => {
 
         if (!password) return res.status(400).send({ status: false, message: "Password is required" });
 
+        if (!validateEmail.validate(email))
+        return res.status(400).send({ status: false, msg: "Enter a valid email" })
+
         let validUser = await userModel.findOne({ email: email, password: password });
 
         if (!validUser)  //checking user data is available or not    
             return res.status(400).send({
                 status: false,
-                msg: "User not found",
+                message: "EmailID or Password is incorrect",
             });
         let token = jwt.sign({ userId: validUser._id }, 'lama', { expiresIn: '6d' }); //generate jwt token at succesfull login 
         return res.status(200).send({ status: true, message: "Login Successfully", data: { token } });
