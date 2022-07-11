@@ -51,7 +51,7 @@ exports.createBook = async (req, res) => {
         if (!validator.isValidDate(releasedAt)) { return res.status(400).send({ status: false, msg: "Please enter date in YYYY-MM-DD" }) }
 
         const checkUserId = await userModel.findOne({ userId: userId })
-        if (!checkUserId) { return res.status(400).send({ status: false, message: "UserId not found" }) }
+        if (!checkUserId) { return res.status(404).send({ status: false, message: "UserId not found" }) }
 
         const checktitle = await bookModel.findOne({ title: title })
         if (checktitle) { return res.status(400).send({ status: false, message: "title already exists please enter new title" }) }
@@ -89,7 +89,6 @@ exports.getBooks = async (req, res) => {
             if (!book) return res.status(404).send({ status: false, message: "No book found" });
 
             return res.status(200).send({ status: false, message: "Book list", data: book })
-
         }
         if (query.userId) {
             if (!validator.isValidObjectId(query.userId)) return res.status(400).send({ status: false, message: "Please Provide Valid User Id" });
