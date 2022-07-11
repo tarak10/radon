@@ -14,7 +14,7 @@ exports.createBook = async (req, res) => {
 
         if (Object.keys(data).length == 0)
             return res.status(400).send({ status: false, message: "you have to enter all details" })
-        
+
         if (!validator.isValid(title)) {
             return res.status(400).send({ status: false, message: "title required" })
         }
@@ -38,7 +38,7 @@ exports.createBook = async (req, res) => {
         if (!validator.isValid(subcategory)) {
             return res.status(400).send({ status: false, message: "subcategory required" })
         }
-        
+
         if (!validator.isValid(releasedAt)) {
             return res.status(400).send({ status: false, message: "releasedAt required" })
         }
@@ -62,7 +62,7 @@ exports.createBook = async (req, res) => {
         if (userId != userloged) { //In this block verifying BlogId belongs to same user or not
             return res.status(403).send({ status: false, data: "Not authorized" })
         }
-    
+
         const saveBook = await bookModel.create(data)
         return res.status(201).send({ status: true, message: "Book successfully created", data: saveBook })
     }
@@ -81,25 +81,25 @@ exports.getBooks = async (req, res) => {
 
     try {
         let query = req.query  //getting data from query params   
-    
+
         if (Object.keys(query).length == 0) {
 
-            let book = await bookModel.find({isDeleted: false}).sort({title: 1})
-            book.sort((a,b) => a.title.localeCompare(b.title)) //enables caseInsensitive and sort the array 
-              if(!book) return res.status(404).send({status: false  , message: "No book found"});
-        
-            return res.status(200).send({ status: false,message: "Book list" , data:book })
+            let book = await bookModel.find({ isDeleted: false }).sort({ title: 1 })
+            book.sort((a, b) => a.title.localeCompare(b.title)) //enables caseInsensitive and sort the array 
+            if (!book) return res.status(404).send({ status: false, message: "No book found" });
+
+            return res.status(200).send({ status: false, message: "Book list", data: book })
 
         }
         if (query.userId) {
             if (!validator.isValidObjectId(query.userId)) return res.status(400).send({ status: false, message: "Please Provide Valid User Id" });
         }
-   
+
         let filter = {
             isDeleted: false
         };
         if (Object.keys(query).length !== 0) { //this block will work in case filter is provided
-            
+
 
             if (query.subcategory) {
                 query.subcategory = { $in: query.subcategory.split(",") };
@@ -110,14 +110,14 @@ exports.getBooks = async (req, res) => {
                 { subcategory: query.subcategory }
             ];
         }
-       
-        let filterByquery = await bookModel.find(filter).sort({title: 1}) //finding book from database 
-        filterByquery.sort((a,b) => a.title.localeCompare(b.title)) //enables caseInsensitive and sort the array
+
+        let filterByquery = await bookModel.find(filter).sort({ title: 1 }) //finding book from database 
+        filterByquery.sort((a, b) => a.title.localeCompare(b.title)) //enables caseInsensitive and sort the array
         if (filterByquery.length == 0) return res.status(404).send({ status: false, message: "No Book found" })
         return res.status(200).send({ status: true, message: "Books list", data: filterByquery });
-    
 
-}catch (err) {
+
+    } catch (err) {
         return res.status(500).send({ status: false, error: err.message });
     }
 }
@@ -198,7 +198,7 @@ exports.updateBooksById = async (req, res) => {
 
 
         const updateBook = await bookModel.findOneAndUpdate({ _id: bookId }, { title: title, excerpt: excerpt, releasedAt: releasedAt, $set: { ISBN: ISBN } }, { new: true })
-        { return res.status(200).send({ status: true, message: "Updated Succesfully", data: updateBook }) }
+         return res.status(200).send({ status: true, message: "Updated Succesfully", data: updateBook }) 
 
 
     } catch (error) {
