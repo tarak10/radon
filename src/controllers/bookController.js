@@ -93,7 +93,7 @@ exports.getBooks = async (req, res) => {
             isDeleted: false
         };
         if (Object.keys(query).length !== 0) { //this block will work in case filter is provided
-           
+            
 
             if (query.subcategory) {
                 query.subcategory = { $in: query.subcategory.split(",") };
@@ -107,7 +107,7 @@ exports.getBooks = async (req, res) => {
        
         let filterByquery = await bookModel.find(filter) //finding book from database 
         if (filterByquery.length == 0) return res.status(404).send({ status: false, message: "No Book found" })
-        return res.status(200).send({ message: filterByquery });
+        return res.status(200).send({ status: true, count: filterByquery.length, message: "Books list", data: filterByquery });
     } catch (err) {
         return res.status(500).send({ status: false, error: err.message });
     }
@@ -132,7 +132,7 @@ exports.getBooksById = async function (req, res) {
 
         let booksWithReview = book.toObject();
         Object.assign(booksWithReview, { reviewsData: reviews });
-        return res.status(200).send({ status: true, message: "Books List", data: booksWithReview })
+        return res.status(200).send({ status: true, count: booksWithReview.length, message: "Books List", data: booksWithReview })
 
 
     } catch (error) {
@@ -217,7 +217,7 @@ exports.deleteBookById = async (req, res) => {
             }
 
             if (findbook.isDeleted == false) {
-                let Update = await bookModel.findOneAndUpdate(
+                await bookModel.findOneAndUpdate(
                     { _id: id },
                     {
                         isDeleted: true, deletedAt: new Date()

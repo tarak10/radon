@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const moment = require('moment')
+
 
 exports.isValid = (value) => {
   if (typeof value === "undefined" || value === null) return false
@@ -16,7 +16,7 @@ exports.validString = (String) => {
 };
 
 
-exports.isValidRequestBody = function (requestBody) {
+exports.isValidRequestBody =  (requestBody) => {
   return Object.keys(requestBody).length > 0;
 }
 exports.isValidObjectId = (objectId) => {
