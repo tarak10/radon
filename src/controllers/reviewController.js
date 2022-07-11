@@ -51,7 +51,7 @@ exports.createReview = async (req, res) => {
 
 exports.updateReview= async (req,res)=>{
 
-  let bookId=req.params.bookId
+  let bookId=req.params.bookIdcommit 
   let reviewId=req.params.reviewId
   let {review, rating,  reviewedAt, reviewedBy}=req.body
   if(!validator.isValidRequestBody(req.params)) return res.status(400).send({ status: false, message: "Please provide data in params" })
