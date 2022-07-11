@@ -62,8 +62,8 @@ exports.createBook = async (req, res) => {
         if (userId != userloged) { //In this block verifying BlogId belongs to same user or not
             return res.status(403).send({ status: false, data: "Not authorized" })
         }
-        
-        const saveBook = await bookModel.create(req.body)
+    
+        const saveBook = await bookModel.create(data)
         return res.status(201).send({ status: true, message: "Book successfully created", data: saveBook })
     }
     catch (error) {
@@ -81,14 +81,20 @@ exports.getBooks = async (req, res) => {
 
     try {
         let query = req.query  //getting data from query params   
-       let data=req.query
+    
         if (Object.keys(query).length == 0) {
-            return res.status(400).send({ status: false, message: "Please provide filter in query params" })
+
+            let book = await bookModel.find({isDeleted: false}).sort({title: 1})
+            book.sort((a,b) => a.title.localeCompare(b.title)) //enables caseInsensitive and sort the array 
+              if(!book) return res.status(404).send({status: false  , message: "No book found"});
+        
+            return res.status(200).send({ status: false,message: "Book list" , data:book })
 
         }
         if (query.userId) {
             if (!validator.isValidObjectId(query.userId)) return res.status(400).send({ status: false, message: "Please Provide Valid User Id" });
         }
+   
         let filter = {
             isDeleted: false
         };
@@ -105,10 +111,13 @@ exports.getBooks = async (req, res) => {
             ];
         }
        
-        let filterByquery = await bookModel.find(filter) //finding book from database 
+        let filterByquery = await bookModel.find(filter).sort({title: 1}) //finding book from database 
+        filterByquery.sort((a,b) => a.title.localeCompare(b.title)) //enables caseInsensitive and sort the array
         if (filterByquery.length == 0) return res.status(404).send({ status: false, message: "No Book found" })
-        return res.status(200).send({ status: true, count: filterByquery.length, message: "Books list", data: filterByquery });
-    } catch (err) {
+        return res.status(200).send({ status: true, message: "Books list", data: filterByquery });
+    
+
+}catch (err) {
         return res.status(500).send({ status: false, error: err.message });
     }
 }
@@ -132,7 +141,7 @@ exports.getBooksById = async function (req, res) {
 
         let booksWithReview = book.toObject();
         Object.assign(booksWithReview, { reviewsData: reviews });
-        return res.status(200).send({ status: true, count: booksWithReview.length, message: "Books List", data: booksWithReview })
+        return res.status(200).send({ status: true, message: "Books List", data: booksWithReview })
 
 
     } catch (error) {

@@ -3,7 +3,7 @@ const validateEmail = require('email-validator');
 const validatePassword = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,15}$/;
 const jwt = require('jsonwebtoken');
 const { isValid } = require('../validator/validator')
-const bookModel = require("../models/bookModel")
+
 const userModel = require("../models/userModel")
 
 
@@ -92,12 +92,7 @@ exports.userLogin = async (req, res) => {
         let data = req.body;
         if (Object.keys(req.body).length == 0) return res.status(400).send({ status: false, message: "Please enter data in  body" });
         let { email, password } = data;
-        if (Object.keys(data).length == 0) {
-            return res.status(400).send({
-                status: false,
-                message: " Please provide user details",
-            });
-        }
+       
         if (!email) return res.status(400).send({ status: false, message: "Email ID is required" });
 
         if (!password) return res.status(400).send({ status: false, message: "Password is required" });

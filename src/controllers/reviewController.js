@@ -76,13 +76,15 @@ exports.updateReview = async (req, res) => {
 
     if (!((rating < 6) && (rating > 0))) return res.status(400).send({ status: false, message: "Rating should be between 1 - 5 numbers" });
 
-    let updateReview = await reviewModel.findByIdAndUpdate(
+    await reviewModel.findByIdAndUpdate(
       { _id: reviewId },
       data,
       { new: true }
     )
-
-    return res.status(200).send({ status: true, message: "Review Updated Successfully", data: updateReview })
+    let arrayReview = await reviewModel.find({ _id: reviewId })
+    let bookReview = book.toObject();
+    Object.assign(bookReview, { reviewData: arrayReview })
+    return res.status(200).send({ status: true, message: "Review Updated Successfully", data: bookReview })
   } catch (error) {
     return res.status(500).send({ status: false, message: error.message })
   }
