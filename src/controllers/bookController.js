@@ -14,7 +14,7 @@ exports.createBook = async (req, res) => {
 
         if (Object.keys(data).length == 0)
             return res.status(400).send({ status: false, message: "you have to enter all details" })
-
+        
         if (!validator.isValid(title)) {
             return res.status(400).send({ status: false, message: "title required" })
         }
@@ -38,6 +38,7 @@ exports.createBook = async (req, res) => {
         if (!validator.isValid(subcategory)) {
             return res.status(400).send({ status: false, message: "subcategory required" })
         }
+        
         if (!validator.isValid(releasedAt)) {
             return res.status(400).send({ status: false, message: "releasedAt required" })
         }
@@ -61,6 +62,7 @@ exports.createBook = async (req, res) => {
         if (userId != userloged) { //In this block verifying BlogId belongs to same user or not
             return res.status(403).send({ status: false, data: "Not authorized" })
         }
+        
         const saveBook = await bookModel.create(req.body)
         return res.status(201).send({ status: true, message: "Book successfully created", data: saveBook })
     }
@@ -72,11 +74,14 @@ exports.createBook = async (req, res) => {
 }
 
 
+/////////////////////////////////////////////////////////////////////Get Books /////////////////////////////////////////////////////////////////////////////////////////////
+
+
 exports.getBooks = async (req, res) => {
 
     try {
-        let query = req.query;  //getting data from query params
-
+        let query = req.query  //getting data from query params   
+       let data=req.query
         if (Object.keys(query).length == 0) {
             return res.status(400).send({ status: false, message: "Please provide filter in query params" })
 
@@ -99,7 +104,7 @@ exports.getBooks = async (req, res) => {
                 { subcategory: query.subcategory }
             ];
         }
-
+       
         let filterByquery = await bookModel.find(filter) //finding book from database 
         if (filterByquery.length == 0) return res.status(404).send({ status: false, message: "No Book found" })
         return res.status(200).send({ status: true, count: filterByquery.length, message: "Books list", data: filterByquery });
@@ -109,13 +114,13 @@ exports.getBooks = async (req, res) => {
 }
 
 
+/////////////////////////////////////////////////////////////////////Get Book By Id /////////////////////////////////////////////////////////////////////////////////////////////
 
 
 exports.getBooksById = async function (req, res) {
 
     try {
         let bookId = req.params.bookId;
-        if (!validator.isValidObjectId(bookId)) return res.status(400).send({ status: false, message: "Please provide valid bookId" });
 
 
         const book = await bookModel.findOne({ _id: bookId }).select({ __v: 0, ISBN: 0 })
@@ -134,6 +139,7 @@ exports.getBooksById = async function (req, res) {
         return res.status(500).send({ status: false, error: error.message })
     }
 }
+/////////////////////////////////////////////////////////////////////Update Book By Id /////////////////////////////////////////////////////////////////////////////////////////////
 
 
 exports.updateBooksById = async (req, res) => {
@@ -152,7 +158,6 @@ exports.updateBooksById = async (req, res) => {
 
 
         if (book.userId != userloged) return res.status(403).send({ status: false, message: "Not Authorised" })
-
 
 
         if (!validator.isValid(title)) {
