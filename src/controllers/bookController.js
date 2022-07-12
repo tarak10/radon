@@ -43,7 +43,8 @@ exports.createBook = async (req, res) => {
         if (!validator.isValid(releasedAt)) {
             return res.status(400).send({ status: false, message: "releasedAt required" })
         }
-
+       
+         if(subcategory.length == 0) return res.status(400).send({status: false , message: "Please enter valid string in subcategory"})
         if (data.isDeleted === true) {  //if document is set to deleted true it will create timestamp
             let DeletedAt = new Date()
             data.deletedAt = DeletedAt
