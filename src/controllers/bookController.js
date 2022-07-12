@@ -173,16 +173,16 @@ exports.updateBooksById = async (req, res) => {
         if (book.userId != userloged) return res.status(403).send({ status: false, message: "Not Authorised" })
 
         //Validation for all fields
-        if (!validator.isValid(title)) {
-            return res.status(400).send({ status: false, message: "Enter title in correct format" })
+        if (title) {
+            if (!validator.isValid(title)) {
+                return res.status(400).send({ status: false, message: "Enter title in correct format" })
+            }
+            const dublicateTitle = await bookModel.findOne({ title: title })
+
+            if (dublicateTitle) {
+                return res.status(400).send({ status: false, message: `${title} is already exists please enter new title` })
+            }
         }
-
-        const dublicateTitle = await bookModel.findOne({ title: title })
-
-        if (dublicateTitle) {
-            return res.status(400).send({ status: false, message: `${title} is already exists please enter new title` })
-        }
-
         if (ISBN) {
             if (!validator.isValidIsbn(ISBN)) {
                 return res.status(400).send({ status: false, message: "ISBN is in incorrect format" })

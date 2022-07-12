@@ -45,9 +45,9 @@ exports.createReview = async (req, res) => {
     )
 
     let bookData = check.toObject(); //converting book document to object
-    Object.assign(bookData, { reviewData: newReview });  //copying object using object.assign method
+    Object.assign(bookData, { reviewsData: newReview });  //copying object using object.assign method
 
-    return res.status(200).send({ status: true, message: "Success", data: bookData })
+    return res.status(201).send({ status: true, message: "Success", data: bookData })
   } catch (error) {
     return res.status(500).send({ status: false, error: error.message })
   }
@@ -90,7 +90,7 @@ exports.updateReview = async (req, res) => {
 
     if (!validator.validString(rating)) return res.status(400).send({ status: false, message: "Please enter rating in digits" });
 
-    if (!((rating < 6) && (rating > 0))) return res.status(400).send({ status: false, message: "Rating should be between 1 - 5 numbers" });
+   if (!((rating < 6) && (rating > 0))) return res.status(400).send({ status: false, message: "Rating should be between 1 - 5 numbers" });
 
     let arrayReview = await reviewModel.findByIdAndUpdate(
       { _id: reviewId },
@@ -99,7 +99,7 @@ exports.updateReview = async (req, res) => {
     ).select({ __v: 0, createdAt: 0, updatedAt: 0 })
 
     let bookReview = book.toObject(); //converting book document to object
-    Object.assign(bookReview, { reviewData: arrayReview }); //copying object using object.assign method
+    Object.assign(bookReview, { reviewsData: arrayReview }); //copying object using object.assign method
     return res.status(200).send({ status: true, message: "Review Updated Successfully", data: bookReview })
   } catch (error) {
     return res.status(500).send({ status: false, message: error.message })

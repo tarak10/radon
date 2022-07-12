@@ -77,7 +77,7 @@ exports.createUser = async (req, res) => {
         }
 
         if (!validatePassword.test(password))
-            return res.status(400).send({ status: false, message: "Enter valid Password" });
+            return res.status(400).send({ status: false, message: "Enter valid Password in Uppercase and special character" });
 
 
         const saveUser = await userModel.create(userData)
