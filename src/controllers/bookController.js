@@ -86,7 +86,7 @@ exports.getBooks = async (req, res) => {
 
         if (Object.keys(query).length == 0) {   //This block will work to fetch all books incase no filter is provided
 
-            let book = await bookModel.find({ isDeleted: false }).sort({ title: 1 })
+            let book = await bookModel.find({ isDeleted: false }).sort({ title: 1 }).select({createdAt: 0 , updatedAt:0 , __v:0 , isDeleted: 0,subcategory:0})
             book.sort((a, b) => a.title.localeCompare(b.title)) //enables caseInsensitive and sort the array 
             if (!book) return res.status(404).send({ status: false, message: "No book found" });
 
@@ -112,7 +112,7 @@ exports.getBooks = async (req, res) => {
             ];
         }
 
-        let filterByquery = await bookModel.find(filter).sort({ title: 1 }) //finding book from database 
+        let filterByquery = await bookModel.find(filter).sort({ title: 1 }).select({createdAt: 0 , updatedAt:0 , __v:0, isDeleted: 0,subcategory:0}) //finding book from database 
         filterByquery.sort((a, b) => a.title.localeCompare(b.title)) //enables caseInsensitive and sort the array
 
         if (filterByquery.length == 0) return res.status(404).send({ status: false, message: "No Book found" })
