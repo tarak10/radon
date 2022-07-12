@@ -8,13 +8,14 @@ exports.createBook = async (req, res) => {
 
     try {
 
-        let data = req.body;
-        let userloged = req.decodedToken //decodedToken is present in request that we have set in authorization middleware it contains loggedIn UserId
-        let { title, excerpt, userId, ISBN, category, subcategory, releasedAt } = data
+        let data = req.body;  //getting data from request body
+        let userloged = req.decodedToken //decodedToken is present in request that we have set in auth middleware it contains loggedIn UserId
+        let { title, excerpt, userId, ISBN, category, subcategory, releasedAt } = data //Destructuring data
 
-        if (Object.keys(data).length == 0)
+        if (Object.keys(data).length == 0)  //checking is there any data is provided in request body or not
             return res.status(400).send({ status: false, message: "you have to enter all details" })
 
+        //Validation for all fields
         if (!validator.isValid(title)) {
             return res.status(400).send({ status: false, message: "title required" })
         }
@@ -50,16 +51,16 @@ exports.createBook = async (req, res) => {
 
         if (!validator.isValidDate(releasedAt)) { return res.status(400).send({ status: false, msg: "Please enter date in YYYY-MM-DD" }) }
 
-        const checkUserId = await userModel.findOne({ userId: userId })
+        const checkUserId = await userModel.findOne({ userId: userId })  //Validation to check user present or not
         if (!checkUserId) { return res.status(404).send({ status: false, message: "UserId not found" }) }
 
-        const checktitle = await bookModel.findOne({ title: title })
+        const checktitle = await bookModel.findOne({ title: title }) //validation incase same title exists
         if (checktitle) { return res.status(400).send({ status: false, message: "title already exists please enter new title" }) }
 
-        const checkIsbn = await bookModel.findOne({ ISBN: ISBN })
+        const checkIsbn = await bookModel.findOne({ ISBN: ISBN })  //validation incase same title exists
         if (checkIsbn) { return res.status(400).send({ status: false, message: "ISBN already exists please enter new ISBN" }) }
 
-        if (userId != userloged) { //In this block verifying BlogId belongs to same user or not
+        if (userId != userloged) { //In this block verifying BookId belongs to same user or not
             return res.status(403).send({ status: false, data: "Not authorized" })
         }
 
@@ -82,7 +83,7 @@ exports.getBooks = async (req, res) => {
     try {
         let query = req.query  //getting data from query params   
 
-        if (Object.keys(query).length == 0) {
+        if (Object.keys(query).length == 0) {   //This block will work to fetch all books incase no filter is provided
 
             let book = await bookModel.find({ isDeleted: false }).sort({ title: 1 })
             book.sort((a, b) => a.title.localeCompare(b.title)) //enables caseInsensitive and sort the array 
@@ -90,7 +91,7 @@ exports.getBooks = async (req, res) => {
 
             return res.status(200).send({ status: false, message: "Book list", data: book })
         }
-        if (query.userId) {
+        if (query.userId) {  //validation to check that is valid userId or not
             if (!validator.isValidObjectId(query.userId)) return res.status(400).send({ status: false, message: "Please Provide Valid User Id" });
         }
 
@@ -112,10 +113,9 @@ exports.getBooks = async (req, res) => {
 
         let filterByquery = await bookModel.find(filter).sort({ title: 1 }) //finding book from database 
         filterByquery.sort((a, b) => a.title.localeCompare(b.title)) //enables caseInsensitive and sort the array
+
         if (filterByquery.length == 0) return res.status(404).send({ status: false, message: "No Book found" })
         return res.status(200).send({ status: true, message: "Books list", data: filterByquery });
-
-
     } catch (err) {
         return res.status(500).send({ status: false, error: err.message });
     }
@@ -128,18 +128,20 @@ exports.getBooks = async (req, res) => {
 exports.getBooksById = async function (req, res) {
 
     try {
-        let bookId = req.params.bookId;
+        let bookId = req.params.bookId; //getting bookId from params  
 
+        //Validation to check is that valid bookId or not
+        if (!validator.isValidObjectId(bookId)) return res.status(400).send({ status: false, message: "Please Provide Valid Book Id" });
 
-        const book = await bookModel.findOne({ _id: bookId }).select({ __v: 0, ISBN: 0 })
+        const book = await bookModel.findOne({ _id: bookId }).select({ __v: 0, ISBN: 0 })  // finding book using bookId
         if (!book) { return res.status(404).send({ status: false, message: "book not found" }) }
 
         if (book.isDeleted == true) return res.status(404).send({ status: false, message: "Book is deleted or not found" })
 
         let reviews = await reviewModel.find({ bookId: book._id, isDeleted: false }).select({ isDeleted: 0, __v: 0, createdAt: 0, updatedAt: 0 })
 
-        let booksWithReview = book.toObject();
-        Object.assign(booksWithReview, { reviewsData: reviews });
+        let booksWithReview = book.toObject();  //converting book document to object
+        Object.assign(booksWithReview, { reviewsData: reviews }); //copying object using object.assign method
         return res.status(200).send({ status: true, message: "Books List", data: booksWithReview })
 
 
@@ -153,21 +155,24 @@ exports.getBooksById = async function (req, res) {
 exports.updateBooksById = async (req, res) => {
     try {
 
-        let bookId = req.params.bookId;
-        let userloged = req.decodedToken;
-        const { title, excerpt, releasedAt, ISBN } = req.body
+        let bookId = req.params.bookId; //getting bookId from params  
+        let userloged = req.decodedToken; //decodedToken is present in request that we have set in auth middleware it contains loggedIn UserId
 
+        const { title, excerpt, releasedAt, ISBN } = req.body //Destructuring data comming from request body
+
+        //Validation to check is that valid bookId or not
         if (!validator.isValidObjectId(bookId)) return res.status(400).send({ status: false, message: "Please provide valid bookId" });
 
+        //checking is there any data is provided in request body or not
         if (Object.keys(req.body).length == 0) return res.status(400).send({ status: false, message: "Please enter data in  body" });
 
         let book = await bookModel.findById(bookId)
         if (!book || book.isDeleted == true) { return res.status(404).send({ status: false, message: "book not found or already deleted" }) }
 
-
+        // comparing userID got from book document with userId from decodedToken
         if (book.userId != userloged) return res.status(403).send({ status: false, message: "Not Authorised" })
 
-
+        //Validation for all fields
         if (!validator.isValid(title)) {
             return res.status(400).send({ status: false, message: "Enter title in correct format" })
         }
@@ -197,7 +202,7 @@ exports.updateBooksById = async (req, res) => {
 
 
         const updateBook = await bookModel.findOneAndUpdate({ _id: bookId }, { title: title, excerpt: excerpt, releasedAt: releasedAt, $set: { ISBN: ISBN } }, { new: true })
-         return res.status(200).send({ status: true, message: "Updated Succesfully", data: updateBook }) 
+        return res.status(200).send({ status: true, message: "Updated Succesfully", data: updateBook })
 
 
     } catch (error) {
@@ -212,14 +217,16 @@ exports.deleteBookById = async (req, res) => {
 
         let id = req.params.bookId;
         let userloged = req.decodedToken //decodedToken is present in request that we have set in auth middleware it contains loggedIn UserrId
-        if (!validator.isValidObjectId(id)) {
+
+        if (!validator.isValidObjectId(id)) {   //Validation to check is that valid bookId or not
             return res.status(400).send({ status: false, messageg: 'BookId is invalid.' });
         }
 
         if (id) {
-            let findbook = await bookModel.findById(id)
+            let findbook = await bookModel.findById(id)  // checking if book is available in DB or not
             if (!findbook) return res.status(404).send({ status: false, messageg: `no book found by this BookID:${id}` });
 
+            // comparing userID got from book document with userId from decodedToken
             if (findbook.userId != userloged) {
                 return res.status(403).send({ status: false, data: "Not authorized" })
             }

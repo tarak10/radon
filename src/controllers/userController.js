@@ -6,22 +6,24 @@ const { isValid } = require('../validator/validator')
 
 const userModel = require("../models/userModel")
 
+///////////////////////////////////////////////////////////////////// CREATE USER /////////////////////////////////////////////////////////////////////////////////////////////
 
 exports.createUser = async (req, res) => {
 
     try {
 
-        let userData = req.body;
+        let userData = req.body;  //Data storing in variable comming from request body
 
-        const { title, name, phone, email, password,} = userData
+        const { title, name, phone, email, password,} = userData //Destructuring data
 
-        if (Object.keys(userData).length == 0) {
+        if (Object.keys(userData).length == 0) {   //checking is there any data is provided in request body or not
             return res.status(400).send({
                 status: false,
                 message: "Invalid request parameters. Please provide user details",
             });
         }
-
+       
+        //Validation for all fields
         if (!isValid(title)) return res.status(404).send({ status: false, message: "title missing" })
 
         let validTitle = ['Mr', 'Mrs', 'Miss']; //validating the title
@@ -50,9 +52,9 @@ exports.createUser = async (req, res) => {
             });
         }
 
-        const isPhone = await userModel.findOne({ phone: phone });
+        const isPhone = await userModel.findOne({ phone: phone });  
 
-        if (isPhone) {
+        if (isPhone) {   //checking is there any similar phone no. is stored in DB or not
             res.status(400).send({ status: false, message: "Phone number already registered" });
             return;
         }
@@ -61,10 +63,10 @@ exports.createUser = async (req, res) => {
             return res.status(400).send({ status: false, message: "email is required" });
         }
 
-        if (!validateEmail.validate(email))
+        if (!validateEmail.validate(email))  //Validation for email using email-validator
             return res.status(400).send({ status: false, msg: "Enter a valid email" })
 
-        const emailUsed = await userModel.findOne({ email: email });
+        const emailUsed = await userModel.findOne({ email: email });    //checking is there any similar Email is stored in DB or not
         if (emailUsed) {
             return res.status(400).send({ status: false, message: "Email is already registered" });
         }
@@ -87,17 +89,21 @@ exports.createUser = async (req, res) => {
     }
 };
 
+///////////////////////////////////////////////////////////////////// USER LOGIN /////////////////////////////////////////////////////////////////////////////////////////////
+
 exports.userLogin = async (req, res) => {
     try {
         let data = req.body;
+        //checking is there any data is provided in request body or not
         if (Object.keys(req.body).length == 0) return res.status(400).send({ status: false, message: "Please enter data in  body" });
-        let { email, password } = data;
+
+        let { email, password } = data;  //Destructuring Data
        
         if (!email) return res.status(400).send({ status: false, message: "Email ID is required" });
 
         if (!password) return res.status(400).send({ status: false, message: "Password is required" });
 
-        if (!validateEmail.validate(email))
+        if (!validateEmail.validate(email))   //Validation for email using email-validator
         return res.status(400).send({ status: false, msg: "Enter a valid email" })
 
         let validUser = await userModel.findOne({ email: email, password: password });
@@ -107,6 +113,7 @@ exports.userLogin = async (req, res) => {
                 status: false,
                 message: "EmailID or Password is incorrect",
             });
+            //Token generation using JWT
         let token = jwt.sign({ userId: validUser._id }, 'lama', { expiresIn: '6d' }); //generate jwt token at succesfull login 
         return res.status(200).send({ status: true, message: "Login Successfully", data: { token } });
     } catch (error) {

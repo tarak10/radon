@@ -2,11 +2,13 @@ const reviewModel = require('../models/reviewModel')
 const bookModel = require('../models/bookModel')
 const validator = require('../validator/validator')
 
+///////////////////////////////////////////////////////////////////// CREATE REVIEW /////////////////////////////////////////////////////////////////////////////////////////////
 
 exports.createReview = async (req, res) => {
   try {
-    let id = req.params.bookId
+    let id = req.params.bookId; //getting book Id from request params
 
+    //Validation to check is that valid bookId or not
     if (!validator.isValidObjectId(id)) return res.status(400).send({ status: false, message: "Please enter valid bookId" });
 
     let checkBook = await bookModel.findById(id);
@@ -14,11 +16,11 @@ exports.createReview = async (req, res) => {
 
     if (checkBook.isDeleted == true) return res.status(404).send({ status: false, message: "Book is already deleted" });
 
-    let data = req.body;
+    let data = req.body; // getting data from request body
 
     if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "Please provide data in body" });
 
-    let { review, rating, reviewedBy } = data;
+    let { review, rating, reviewedBy } = data;  //Destructuring data
 
     if (!rating) return res.status(400).send({ status: false, message: "Rating is required and should not be zero" });
 
@@ -28,26 +30,40 @@ exports.createReview = async (req, res) => {
 
     if (!((rating < 6) && (rating > 0))) return res.status(400).send({ status: false, message: "Rating should be between 1 - 5 numbers" });
 
+
+
     data.bookId = id //storing bookId got from params inside reviews bookId
 
-    let reviewData = await reviewModel.create(data)
+    let reviewDa = await reviewModel.create(data)  // creating review document
 
-    await bookModel.updateOne(
+    let newReview = await reviewModel.find(reviewDa).select({ __v: 0, createdAt: 0, updatedAt: 0 })
+
+    let check = await bookModel.findByIdAndUpdate(
       { _id: id },
-      { $inc: { reviews: 1 } }
+      { $inc: { reviews: 1 } },
+      { new: true }
     )
-    return res.status(200).send({ status: true, message: "Success", data: reviewData })
+
+    let bookData = check.toObject(); //converting book document to object
+    Object.assign(bookData, { reviewData: newReview });  //copying object using object.assign method
+
+    return res.status(200).send({ status: true, message: "Success", data: bookData })
   } catch (error) {
     return res.status(500).send({ status: false, error: error.message })
   }
 }
 
+///////////////////////////////////////////////////////////////////// UPDATE REVIEW /////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
 exports.updateReview = async (req, res) => {
   try {
 
     let id = req.params;
-    let { bookId, reviewId } = id;
+    let { bookId, reviewId } = id; // Destructuring Id's
 
+    // here validation for ID
     if (!validator.isValidObjectId(bookId)) return res.status(400).send({ status: false, message: "Please enter valid bookID" })
 
     if (!validator.isValidObjectId(reviewId)) return res.status(400).send({ status: false, message: "Please enter valid reviewID" })
@@ -66,7 +82,7 @@ exports.updateReview = async (req, res) => {
 
     let data = req.body;
 
-    let { review, rating, reviewedBy } = data;
+    let { review, rating, reviewedBy } = data;   // Destructuring data
 
     if (!rating) return res.status(400).send({ status: false, message: "Rating is required and should not be zero" });
 
@@ -76,26 +92,29 @@ exports.updateReview = async (req, res) => {
 
     if (!((rating < 6) && (rating > 0))) return res.status(400).send({ status: false, message: "Rating should be between 1 - 5 numbers" });
 
-    await reviewModel.findByIdAndUpdate(
+    let arrayReview = await reviewModel.findByIdAndUpdate(
       { _id: reviewId },
       data,
       { new: true }
-    )
-    let arrayReview = await reviewModel.find({ _id: reviewId })
-    let bookReview = book.toObject();
-    Object.assign(bookReview, { reviewData: arrayReview })
+    ).select({ __v: 0, createdAt: 0, updatedAt: 0 })
+
+    let bookReview = book.toObject(); //converting book document to object
+    Object.assign(bookReview, { reviewData: arrayReview }); //copying object using object.assign method
     return res.status(200).send({ status: true, message: "Review Updated Successfully", data: bookReview })
   } catch (error) {
     return res.status(500).send({ status: false, message: error.message })
   }
 }
 
+///////////////////////////////////////////////////////////////////// DELETE REVIEW /////////////////////////////////////////////////////////////////////////////////////////////
+
 exports.deleteReview = async (req, res) => {
   try {
 
     let data = req.params;
-    let { bookId, reviewId } = data;
+    let { bookId, reviewId } = data;  // Destructuring Id's
 
+    // here validation for ID
     if (!validator.isValidObjectId(bookId)) return res.status(400).send({ status: false, message: "Please enter valid bookID" })
 
     if (!validator.isValidObjectId(reviewId)) return res.status(400).send({ status: false, message: "Please enter valid reviewID" })
@@ -112,13 +131,13 @@ exports.deleteReview = async (req, res) => {
 
     if (review.isDeleted == true) return res.status(404).send({ status: false, message: "Review is already deleted" });
 
-    await reviewModel.updateOne(
+    await reviewModel.updateOne(  // setting isDeleted key true
       { _id: reviewId },
       { isDeleted: true }
     )
 
-    await bookModel.updateOne(
-      { _id: reviewId },
+    await bookModel.updateOne(  // Decreasing review count by 1
+      { _id: bookId },
       { $inc: { reviews: -1 } }
     )
     return res.status(200).send({ status: true, message: "Review Deleted Successfully" });
