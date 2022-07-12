@@ -83,6 +83,8 @@ exports.updateReview = async (req, res) => {
     let data = req.body;
 
     let { review, rating, reviewedBy } = data;   // Destructuring data
+    
+    if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "Please provide data in body" });
 
     if (!rating) return res.status(400).send({ status: false, message: "Rating is required and should not be zero" });
 
