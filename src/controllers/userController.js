@@ -109,9 +109,9 @@ exports.userLogin = async (req, res) => {
         let validUser = await userModel.findOne({ email: email, password: password });
 
         if (!validUser)  //checking user data is available or not    
-            return res.status(400).send({
+            return res.status(401).send({
                 status: false,
-                message: "EmailID or Password is incorrect",
+                message: "Invalid Login Credentials",
             });
             //Token generation using JWT
         let token = jwt.sign({ userId: validUser._id }, 'lama', { expiresIn: '6d' }); //generate jwt token at succesfull login 
