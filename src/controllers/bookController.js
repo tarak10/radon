@@ -1,8 +1,44 @@
-
 const bookModel = require("../models/bookModel")
 const userModel = require("../models/userModel")
 const validator = require('../validator/validator')
 const reviewModel = require("../models/reviewModel")
+const aws= require("aws-sdk")
+  
+
+
+aws.config.update({
+    accessKeyId: "AKIAY3L35MCRVFM24Q7U",
+    secretAccessKey: "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",
+    region: "ap-south-1"
+})
+
+let uploadFile= async ( file) =>{
+   return new Promise( function(resolve, reject) {
+    let s3= new aws.S3({apiVersion: '2006-03-01'}); 
+
+    var uploadParams= {
+        ACL: "public-read",
+        Bucket: "classroom-training-bucket",  
+        Key: "abc/" + file.originalname,  
+        Body: file.buffer
+    }
+
+    s3.upload( uploadParams, function (err, data ){
+        if(err) {
+            return reject({"error": err})
+        }
+        return resolve(data.Location)
+    })
+})
+}
+
+
+
+
+
+
+
+
 
 exports.createBook = async (req, res) => {
 
@@ -10,12 +46,13 @@ exports.createBook = async (req, res) => {
 
         let data = req.body;  //getting data from request body
         let userloged = req.decodedToken //decodedToken is present in request that we have set in auth middleware it contains loggedIn UserId
-        let { title, excerpt, userId, ISBN, category, subcategory, releasedAt } = data //Destructuring data
+        let { title, excerpt, userId, ISBN, category, subcategory, releasedAt,bookCover } = data //Destructuring data
 
-        if (Object.keys(data).length == 0)  //checking is there any data is provided in request body or not
-            return res.status(400).send({ status: false, message: "you have to enter all details" })
+         if (Object.keys(data).length == 0)  //checking is there any data is provided in request body or not
+           return res.status(400).send({ status: false, message: "you have to enter all details" })
 
-        //Validation for all fields
+       // Validation for all fields
+        
         if (!validator.isValid(title)) {
             return res.status(400).send({ status: false, message: "title required" })
         }
@@ -39,7 +76,7 @@ exports.createBook = async (req, res) => {
         if (!validator.isValid(subcategory)) {
             return res.status(400).send({ status: false, message: "subcategory required" })
         }
-
+          
         if (!validator.isValid(releasedAt)) {
             return res.status(400).send({ status: false, message: "releasedAt required" })
         }
@@ -50,21 +87,26 @@ exports.createBook = async (req, res) => {
             data.deletedAt = DeletedAt
         }
 
+        //aws //
+        let files=req.files
+
+        if (!(files&&files.length)) {
+           return res.status(400).send({ status: false, message: " Please Provide The Profile Image" });}
+
+         const uploadedBookCover = await uploadFile(files[0])
+
+         data.bookCover=uploadedBookCover
+
         if (!validator.isValidDate(releasedAt)) { return res.status(400).send({ status: false, msg: "Please enter date in YYYY-MM-DD" }) }
 
-        const checkUserId = await userModel.findOne({ userId: userId })  //Validation to check user present or not
-        if (!checkUserId) { return res.status(404).send({ status: false, message: "UserId not found" }) }
-
         const checktitle = await bookModel.findOne({ title: title }) //validation incase same title exists
-        if (checktitle) { return res.status(400).send({ status: false, message: "title already exists please enter new title" }) }
-
-        const checkIsbn = await bookModel.findOne({ ISBN: ISBN })  //validation incase same title exists
+    if (checktitle) { return res.status(400).send({ status: false, message: "Title already exists please enter new Title" }) }
+       const checkIsbn = await bookModel.findOne({ ISBN: ISBN })  //validation incase same title exists
         if (checkIsbn) { return res.status(400).send({ status: false, message: "ISBN already exists please enter new ISBN" }) }
 
-        if (userId != userloged) { //In this block verifying BookId belongs to same user or not
+      if (userId != userloged) { //In this block verifying BookId belongs to same user or not
             return res.status(403).send({ status: false, data: "Not authorized" })
-        }
-
+         }
         const saveBook = await bookModel.create(data)
         return res.status(201).send({ status: true, message: "Book successfully created", data: saveBook })
     }
@@ -248,5 +290,3 @@ exports.deleteBookById = async (req, res) => {
         res.status(500).send({ status: false, error: err.message });
     }
 }
-
-
