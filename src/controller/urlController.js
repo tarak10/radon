@@ -12,13 +12,9 @@ const isValidRequest = function (request) {
 const isValidValue = function (value) {
     if (typeof value === "undefined" || value === null) return false;
     if (typeof value === "string" && value.trim().length === 0) return false;
-    //  if (typeof value === 'number' && value.toString().trim().length === 0) return false
+    if (typeof value === 'number' ) return false
     return true;
 };
-/*const isValidUrl = function (url) {
-    const urlRegex = /(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/
-    return urlRegex.test(url)
-}*/
 
 //---------------------------------------------------Shorten Url API-----------------------------------------------------------------//
 const shortenUrl = async (req, res) => {
@@ -32,12 +28,9 @@ const shortenUrl = async (req, res) => {
 
         //validation for Long Url
         if (!validUrl.isWebUri(longUrl)) return res.status(400).send({ status: false, message: "Long Url is invalid." })
-        //if (!isValidUrl(longUrl)) return res.status(400).send({ status: false, message: "Long Url is invalid reg." })
 
         let baseUrl = "http://localhost:3000"
 
-        // validation for base Url
-        if (!validUrl.isWebUri(baseUrl)) return res.status(400).send({ status: false, message: `${baseUrl} is invalid base Url` })
 
 
         //if the Long url is already exist
@@ -46,7 +39,7 @@ const shortenUrl = async (req, res) => {
         const alreadyExistUrl = await urlModel.findOne({ longUrl: longUrl }).select({ createdAt: 0, updatedAt: 0, __v: 0, _id: 0 })
 
         if (alreadyExistUrl) {
-            return res.status(200).send({ status: true, message: "Shorten link already generated previously", data: alreadyExistUrl })
+            return res.status(400).send({ status: false, message: "Shorten link already generated previously", data: alreadyExistUrl })
         } else {
 
             let shortUrlCode = shortid.generate()
@@ -68,7 +61,7 @@ const shortenUrl = async (req, res) => {
             let createUrl = await urlModel.create(generateUrl)
 
 
-            return res.status(201).send({ status: true, message: "Short url Successfully created", data:createUrl  })
+            return res.status(201).send({ status: true, message: "Short url Successfully created", data: generateUrl} )
         }
 
     } catch (err) {
@@ -76,5 +69,20 @@ const shortenUrl = async (req, res) => {
     }
 }
 
+const getURL = async function (req, res) {
+    try {
+      let urlCode = req.params;
+  
+      const findUrlCode = await urlModel.findOne(urlCode).select({ createdAt: 0, updatedAt: 0, __v: 0, _id: 0 })
+  
+      if(!findUrlCode) return res.status(400).send({status: false, message: "url code not matched"})
 
-module.exports = { shortenUrl };
+      return res.status(302).redirect(findUrlCode.longUrl)
+  
+    } catch (error) {
+      
+        return  res.status(500).send({ status: false, error: error.message });
+    }
+  };
+
+module.exports = { shortenUrl, getURL };
