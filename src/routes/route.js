@@ -5,7 +5,7 @@ const urlController = require("../controller/urlController")
 // URL Shortener APIs
 router.post("/url/shorten", urlController.shortenUrl)
 
- router.get("/:urlCode", urlController.getURL)
+ router.get("/:urlCode", urlController.getUrl)
 
 //if api is invalid OR wrong URL
 router.all("/**", function (req, res) {
