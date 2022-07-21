@@ -1,6 +1,7 @@
 const urlModel = require("../models/urlModel");
 const validUrl = require("valid-url");
 const shortid = require("shortid");
+var _ = require('lodash');
 
 const redis = require("redis");
 const { promisify } = require("util");
@@ -57,8 +58,7 @@ const shortenUrl = async (req, res) => {
 
         let baseUrl = "http://localhost:3000"
 
-        // validation for base Url
-        if (!validUrl.isWebUri(baseUrl)) return res.status(400).send({ status: false, message: `${baseUrl} is invalid base Url` })
+        
 
 
         //if the Long url is already exist
@@ -68,19 +68,22 @@ const shortenUrl = async (req, res) => {
 
          if (cachedlinkdata) {
              let change = JSON.parse(cachedlinkdata)
-            return res.status(200).send({ status: true,msg:"data found in Redis", redisdata: change })
+            return res.status(201).send({ status: true,message:"data found in Redis Cache Memory ", data: change })
          }
 
         // check for data in the Database
-        const alreadyExistUrl = await urlModel.findOne({ longUrl: longUrl }).select({ createdAt: 0, updatedAt: 0, __v: 0, _id: 0 })
+        const alreadyExistUrl = await urlModel.findOne({$or:[{longUrl: longUrl},{shortUrl: longUrl} ]}).select({ createdAt: 0, updatedAt: 0, __v: 0, _id: 0 })
 
         if (alreadyExistUrl) {
             //setting data in cache
             await SET_ASYNC(`${req.body.longUrl}`, JSON.stringify(alreadyExistUrl));
-            return res.status(200).send({ status: true, message: "Shorten link already generated previously"})
+            return res.status(200).send({ status: true, message: "Shorten link already generated previously",data:alreadyExistUrl})
         } else {
 
-            let shortUrlCode = shortid.generate().toLowerCase();
+            // let shortUrlCode = shortid.generate().toLowerCase();
+             let shortUrlCode = (Math.random()*1e16).toString(36)
+            // let shortUrlCode= _.times(20, () => _.random(9).toString(36)).join('');
+
 
             //if the Urlcode is already existm( rare purpouse)
             const alreadyExistCode = await urlModel.findOne({ urlCode: shortUrlCode })
@@ -97,15 +100,13 @@ const shortenUrl = async (req, res) => {
 
 
             let createUrl = await urlModel.create(generateUrl)
-
-            // setting data in cache
-             await SET_ASYNC(`${longUrl}`, JSON.stringify(generateUrl))
-
-            return res.status(201).send({ status: true, message: "Short url Successfully created", data: generateUrl })
+            await SET_ASYNC(`${req.body.longUrl}`, JSON.stringify(generateUrl),"EX",10);
+       return res.status(201).send({ status: true, message: "Short url Successfully created", data: generateUrl })
         }
 
     } catch (err) {
-        return res.status(500).send({ status: false, message: err.message })
+        console.log(err)
+        return res.status(500).send({ status: false, message: err })
     }
 }
 
@@ -122,7 +123,7 @@ const getUrl = async (req, res) => {
                 await SET_ASYNC(`${urlCode}`, JSON.stringify(UrlDb.longUrl));
                 return res.status(302).redirect(UrlDb.longUrl);
             } else {
-                return res.status(404).send({ status: false, msg: "No URL Found" });
+                return res.status(404).send({ status: false, message: "No URL Found" });
             }
         }
     } catch (err) {
