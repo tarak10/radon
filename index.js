@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: true }))
 
 mongoose
   .connect(
-    "mongodb+srv://kishan_31:4GdZARnCyGUbPKKw@cluster0.d5f50qs.mongodb.net/productsManagmentGroup42",
+    "mongodb+srv://vaibhu:vaibhu123@cluster0.gvjopnc.mongodb.net/MedPlus",
     {
       useNewUrlParser: true,
     }

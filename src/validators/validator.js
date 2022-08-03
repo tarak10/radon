@@ -75,7 +75,13 @@ const isValidObjectId = function (userId) {
     return mongoose.Types.ObjectId.isValid(userId)
 }
 
-module.exports = { isValid, isValidEmail, isValidName, isValidPhone, isValidpassword, isValidimg,isValidTitle,isValidPinCode, isValidObjectId, isValidPrice, isValidInstallment}
+
+const isvalidQuantity = function isInteger(value) {
+    if(value < 1) return false
+     if(value % 1 == 0 ) return true
+}
+
+module.exports = { isValid, isValidEmail, isValidName, isValidPhone, isValidpassword, isValidimg,isValidTitle,isValidPinCode, isValidObjectId, isValidPrice, isValidInstallment, isvalidQuantity}
 
 
 

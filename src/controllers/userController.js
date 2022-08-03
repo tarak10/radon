@@ -3,7 +3,8 @@ const Validator = require('../validators/validator')
 const jwt = require('jsonwebtoken')
 const aws = require('../validators/aws')
 const bcrypt = require('bcrypt')
-
+const userModel = require('../models/userModel')
+const mongoose = require('mongoose')
 
 //const saltRounds = 10
 
@@ -63,9 +64,9 @@ const createUser = async function (req, res) {
         if (!Validator.isValidPinCode(billing.pincode))
             return res.status(400).send({ status: false.valueOf, message: "pincode format not correct in billing pincode" })
 
-        const uniqueemail = await usermodel.findOne({email:email})
+        const uniqueemail = await userModel.findOne({email:email})
         if (uniqueemail) return res.status(400).send({ status: false, message: "emailId already exist" })
-        const uniquephone = await usermodel.findOne({phone:phone})
+        const uniquephone = await userModel.findOne({phone:phone})
         if (uniquephone) return res.status(400).send({ status: false, message: "phonenumber already exist" })
 
 
@@ -93,7 +94,7 @@ const createUser = async function (req, res) {
             data.password = await encryptedpassword
 
 
-            let result = await usermodel.create(data)
+            let result = await userModel.create(data)
             return res.status(201).send({ status: true, message: "User created successfully", data: result })
         }
         else {
@@ -132,7 +133,7 @@ try{
 
 
 
-    const user = await usermodel.findOne({ email: email })
+    const user = await userModel.findOne({ email: email })
     if (!user) { return res.status(404).send({ status: false, msg: 'No such user found' }) }
     let comparepassword = await bcrypt.compare(password, user.password).then((res) => {
         return res
@@ -165,12 +166,12 @@ catch (error) {
 const getuserdata = async function (req, res) {
    try{
     let result = req.params.userId
-    if(!result) return  res.status(400).send({status:false, message:`please enter ${userId}`})
+    //if(!result) return  res.status(400).send({status:false, message:`please enter ${userId}`})
    if(!Validator.isValidObjectId(userId)) return res.status(400).send({status:false, message:"please enter valid userId"})
 
     if (result != req.dtoken) { return res.status(404).send({ status: false, message: "UserId doesn't match" }) }
     
-        const dbcall = await usermodel.findOne({ _id: result })
+        const dbcall = await userModel.findById({ _id: result })
         if(!dbcall) return  res.status(400).send({status: false, message:"No user found with this userId"})
         return res.status(200).send({ status: true, message: "User profile details", data: dbcall })
     }
@@ -184,93 +185,125 @@ const getuserdata = async function (req, res) {
 
 
 const updateuser = async function (req, res) {
-    try {
-        
-        let data = req.params.userId
-        if (!data) return res.status(400).send({ status: false, message: "please enter Id in param" })
-        let result = req.body
-        const { fname, lname, password, address } = result
+        try{
+
+            let userId = req.params.userId
+        let files = req.files
+        var data = req.body
+        let { fname, lname, password, address } = data
+         console.log(address)
+        if (!mongoose.Types.ObjectId.isValid(userId)) return res.status(400).send({ status: false, msg: "provided userId is not valid" })
+
+        var userDoc = await userModel.findOne({ _id: userId })
+        if (!userDoc) { return res.status(404).send({ status: false, msg: "no such product available" }) }
 
 
-        if (!data) return res.status(400).send({ status: false, message: "please enter some details" })
-        if (!Validator.isValid(fname))return  res.status(400).send({ status: false, message: "please enter fname" })
-        if (!Validator.isValidName(fname)) return res.status(400).send({ status: false, message: "please valid fname" })
-        if (!Validator.isValid(lname))return  res.status(400).send({ status: false, message: "please enter lname" })
-        if (!Validator.isValidName(lname))return  res.status(400).send({ status: false, message: "please valid lname" })
-        // if (!Validator.isValid(email)) res.status(400).send({ status: false, message: "please enter email" })
-        // if (!Validator.isValidEmail(email)) res.status(400).send({ status: false, message: "please enter valid email" })
-        // if (!Validator.isValid(phone)) res.status(400).send({ status: false, message: "please enter phonenumber" })
-        // if (!Validator.isValidPhone(phone)) res.status(400).send({ status: false, message: "please enter valid phonenumber" })
-        if (!Validator.isValid(password)) return  res.status(400).send({ status: false, message: "please enter password" })
-        if (!Validator.isValidpassword(password)) return res.status(400).send({ status: false, message: "please enter valid password" })
-
-        if (!Validator.isValid(address)) return res.status(400).send({ status: false, message: "please enter address" })
-
-        let shipping = address.shipping
-        let billing = address.billing
-
-        if (!Validator.isValid(shipping.street)) return res.status(400).send({ status: false, msg: "shipping street is missing" })
-        if (!Validator.isValid(shipping.city)) return res.status(400).send({ status: false, msg: "shipping city is missing" })
-        if (!Validator.isValid(shipping.pincode)) return res.status(400).send({ status: false, msg: "shipping pincode is missing" })
-
-
-        if (!Validator.isValid(billing.street)) return res.status(400).send({ status: false, msg: "billing street is missing" })
-        if (!Validator.isValid(billing.city)) return res.status(400).send({ status: false, msg: "billing city is missing" })
-        if (!Validator.isValid(billing.pincode)) return res.status(400).send({ status: false, msg: "billing pincode is missing" })
-
-
-        if (!Validator.isValidName(shipping.street)) return res.status(400).send({ status: false, msg: "shipping street is not valid, this is only in alphabet format" })
-
-        if (!Validator.isValidName(billing.street)) return res.status(400).send({ status: false, msg: "billing street is not valid, this is only in alphabet format" })
-
-
-        if (!Validator.isValidName(shipping.city)) return res.status(400).send({ status: false, msg: "shipping city is not valid, this is only in alphabet format" })
-
-        if (!Validator.isValidName(billing.city)) return res.status(400).send({ status: false, msg: "billing city is not valid, this is only in alphabet format" })
-
-
-        if (!Validator.isValidPinCode(shipping.pincode))
-            return res.status(400).send({ status: false.valueOf, message: "pincode format not correct in shipping pincode" })
-
-        if (!Validator.isValidPinCode(billing.pincode))
-            return res.status(400).send({ status: false.valueOf, message: "pincode format not correct in billing pincode" })
-
-        const findBook = await usermodel.findById({ _id: data })
-        if (!findBook) {
-            return res.status(404).send({ status: false, message: "No book find by params" })
-
-        }
-        // 
-        //Authorization-if the user doesn't created the book, then won't be able to delete it.
-        else if (findBook._id != req.dtoken) {
+        else if (userDoc._id != req.dtoken) {
             return res.status(403).send({
                 status: false,
                 message: "Unauthorized access."
             })
         }
-         let files = req.files
-         if (!files || files.length == 0) {
-            return res.status(400).send({ status: false, message: "Image File must be require, Please Provide it" });
-        }
-        if (!Validator.isValidimg(files[0].mimetype))
-        return res.status(400).send({ status: false, msg: "Please Provide Valid Image Files in Format of [ jpg , jpge ,png ]" })
 
-    data.profileImage = await aws.uploadFile(req.files[0])
+        if (files.length > 0) {
+            if (!Validator.isValidimg(files[0].mimetype))
+                return res.status(400).send({ status: false, msg: "Please Provide Valid Image Files in Format of [ jpg , jpge ,png ]" })
+            let profileImage = await aws.uploadFile(req.files[0])
+            let updateProfile = await userModel.findOneAndUpdate({ _id: userId }, { profileImage: profileImage }, { new: true })
 
-
-        // to update the book
-        let updateBook = await usermodel.findOneAndUpdate({ _id: data }, {
-            $set: {
-                fname: fname, lname: lname,password: password, address: address, profileImage:data.profileImage
+            if (Object.keys(data).length == 0) {
+                if (updateProfile) {
+                    return res.send(updateProfile)
+                }
             }
-        }, { new: true })
-        return res.status(200).send({ status: true, message: 'Success', data: updateBook })
-    } catch (err) {
-        return res.status(500).send({
-            status: false,
-            message: err.message
-        })
+        }
+
+        if ("fname" in data) {
+            if (!Validator.isValid(fname)) { return res.status(400).send({ status: false, msg: "First Name can't be Empty" }) }
+            if (!Validator.isValidName(fname))
+                return res.status(400).send({ status: false, msg: "Please enter valid First Name" })
+            let uniquefname = await userModel.findOne({ fname: fname })
+            if (uniquefname) { return res.status(400).send({ status: false, msg: "First Name is already exist" }) }
+            userDoc.fname = fname
+        }
+
+
+        if ("lname" in data) {
+            if (!Validator.isValid(lname)) { return res.status(400).send({ status: false, msg: "Last Name can't be Empty" }) }
+            if (!Validator.isValidName(lname))
+                return res.status(400).send({ status: false, msg: "Please enter valid Last Name" })
+            let uniquelname = await userModel.findOne({ lname: lname })
+            if (uniquelname) { return res.status(400).send({ status: false, msg: "Last Name is already exist" }) }
+            userDoc.lname = lname
+        }
+
+        if ("password" in data) {
+            if (!Validator.isValid(password)) { return res.status(400).send({ status: false, msg: "Password can't be Empty" }) }
+            if (!Validator.isValidpassword(password))
+                return res.status(400).send({ status: false, msg: "Please enter valid Password" })
+
+            const saltRounds = 10;
+            let encryptedPassword = bcrypt
+                .hash(data.password, saltRounds)
+                .then((hash) => {
+                    console.log(`Hash: ${hash}`);
+                    return hash;
+                });
+
+            userDoc.password = await encryptedPassword;
+        }
+
+        const findAddress = await userModel.findOne({ _id: userId });
+
+
+
+        if("address" in data){
+       if(address.shipping){
+        if (address.shipping.street) {
+            if (!Validator.isValid(address.shipping.street))
+              return res.status(400).send({ status: false, msg: "shipping street is not valid " });
+            findAddress.address.shipping.street = address.shipping.street;
+          }
+          if (address.shipping.city) {
+            if (!Validator.isValid(address.shipping.city))
+              return res.status(400).send({ status: false, msg: "shipping city is not valid " });
+            findAddress.address.shipping.city = address.shipping.city;
+          }
+          if (address.shipping.pincode) {
+            if (!Validator.isValidPinCode(address.shipping.pincode))
+              return res.status(400).send({ status: false, msg: "shipping pincode is not valid " });
+            findAddress.address.shipping.pincode =address.shipping.pincode;
+          }
+        }
+           
+          
+          if(address.billing){
+          if (address.billing.street) {
+            if (!Validator.isValid(address.billing.street))
+              return res.status(400).send({ status: false, msg: "billing street is not valid " });
+            findAddress.address.billing.street = address.billing.street;
+          }
+          if (address.billing.city) {
+            if (!Validator.isValid(address.billing.city))
+              return res.status(400).send({ status: false, msg: "billing city is not valid " });
+            findAddress.address.billing.city = address.billing.city;
+          }
+          if (address.billing.pincode) {
+            if (!Validator.isValidPinCode(address.billing.pincode))
+              return res.status(400).send({ status: false, msg: "billing pincode is not valid " });
+            findAddress.address.billing.pincode =address.billing.pincode;
+          }
+        }
+    }
+        
+        userDoc.address = findAddress.address;                          
+      
+        userDoc.save()
+        return res.status(200).send({ status: false, msg: "success ", data: userDoc })
+
+         } catch (err) {
+            console.log(err)
+        res.status(500).send({ status: false, message: err.message });
     }
 }
-
 module.exports = { createUser, loginUser, getuserdata, updateuser };
