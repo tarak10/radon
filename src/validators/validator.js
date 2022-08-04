@@ -3,13 +3,9 @@ const mongoose = require('mongoose')
 const isValid = (value) => {
     if (typeof value === "undefined" || value === null) return false
     if (typeof value === "string" && value.trim().length === 0) return false
+   // if (typeof (value) === 'object'|| Object.values(value) === 0) return false
     return true
 }
-
-// const isValidNameNumber = (namenumber) => {
-
-//     return true
-// }
 
 const isValidName = (name) => {
     if (/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z])$/i.test(name))

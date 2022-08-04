@@ -37,12 +37,17 @@ const createUser = async function (req, res) {
         // if(!Validator.isValid(address.shipping))res.status(400).send({status:false, message:"please valid lname"}) 
         let shipping = address.shipping
         let billing = address.billing
+         
+        if(!Validator.isValid(address.shipping)) return res.status(400).send({ status: false, msg: "shipping is not available" })
 
         if (!Validator.isValid(shipping.street)) return res.status(400).send({ status: false, msg: "shipping street is missing" })
         if (!Validator.isValid(shipping.city)) return res.status(400).send({ status: false, msg: "shipping city is missing" })
         if (!Validator.isValid(shipping.pincode)) return res.status(400).send({ status: false, msg: "shipping pincode is missing" })
 
 
+
+        if(!Validator.isValid(address.billing)) return res.status(400).send({ status: false, msg: " billing is not availbale"})
+        
         if (!Validator.isValid(billing.street)) return res.status(400).send({ status: false, msg: "billing street is missing" })
         if (!Validator.isValid(billing.city)) return res.status(400).send({ status: false, msg: "billing city is missing" })
         if (!Validator.isValid(billing.pincode)) return res.status(400).send({ status: false, msg: "billing pincode is missing" })
@@ -115,7 +120,8 @@ const loginUser = async function (req, res) {
 try{
 
     const requestbody = req.body
-     if (!Validator.isValid(requestbody)) { return res.status(400).send({ status: false, msg: 'Please enter mailId and password ' }) }
+    if (Object.keys(requestbody).length == 0) { return res.status(400).send({ status: false, msg: "Please enter data in requestbody"})}
+
     const { email, password } = requestbody
 
     // // to check the email is present 
@@ -191,7 +197,8 @@ const updateuser = async function (req, res) {
         let files = req.files
         var data = req.body
         let { fname, lname, password, address } = data
-         console.log(address)
+       // if(!Object.keys(data).length == 0){ return res.status(400).send({ status: false, msg: "Data should be available" }) }
+         
         if (!mongoose.Types.ObjectId.isValid(userId)) return res.status(400).send({ status: false, msg: "provided userId is not valid" })
 
         var userDoc = await userModel.findOne({ _id: userId })

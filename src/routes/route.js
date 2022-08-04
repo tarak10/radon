@@ -4,6 +4,10 @@ const userController = require("../controllers/userController")
 const productController = require("../controllers/productController")
 const cartController = require("../controllers/cartController")
 
+const orderController = require("../controllers/orderController")
+
+
+
 const mw = require("../middlewares/auth")
 
 
@@ -25,7 +29,13 @@ router.delete("/product/:productId", productController.deleteproduct)
 
 router.post("/user/:userId/cart",mw.authenticated, cartController.createCart )
 router.put("/user/:userId/cart",mw.authenticated, cartController.updateCart )
+router.get("/user/:userId/cart",mw.authenticated, cartController.getCart )
+router.delete("/user/:userId/cart",mw.authenticated, cartController.delCart )
  
+
+
+router.post("/user/:userId/orders",mw.authenticated, orderController.orderCreate )
+
 router.all("/*",(req,res)=>{
     return res.status(404).send({status:false,message:"Url not found"})
 });
