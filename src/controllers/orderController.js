@@ -107,7 +107,7 @@ return res.status(201).send({status:true, message:"Order created successfully", 
                   }
                   if(userId != req.dtoken) res.status(403).send({status: false, message: "Unauthorized access"})
 
-        const {orderId} = data;
+        const {orderId, status} = data;
 
         if(!Validator.isValid(orderId)){  return res.status(400).send({
             status: false,
@@ -122,16 +122,47 @@ return res.status(201).send({status:true, message:"Order created successfully", 
           });
         }
 
-        const oredrdetails = await orderModel.findOne({userId: userId,_id:orderId, isDeleted: false})
-        if (!oredrdetails)
+        const orderDetailsByOrderId = await orderModel.findOne({userId: userId,_id:orderId, isDeleted: false})
+        if (!orderDetailsByOrderId)
         return res
           .status(400)
           .send({ status: false, msg: "No order exist with this userId" });
           
+
+          
+        if (!["pending", "completed", "cancelled"].includes(status)) {
+          return res.status(400).send({
+              status: false,
+              message: "status should be from [pending, completed, cancelled]",
+          });
+      }
+
+      if (status === "completed" && orderDetailsByOrderId.status === "completed") {
+          return res.status(400).send({
+              status: false,
+              message: "Order completed, now its status can not be updated",
+          });
+      }
+
+      if (status === "cancelled" && orderDetailsByOrderId.cancellable === false) {
+          return res
+              .status(400)
+              .send({ status: false, message: "This order can not be cancelled" });
+      }
+
+      const updateStatus = await orderModel.findOneAndUpdate({ _id: orderId }, { $set: { status: status } }, { new: true });
+
+      res.status(200).send({
+          status: true,
+          message: "order status updated",
+          data: updateStatus,
+      });
                 
             } catch (err) {
                 return res.status(500).send({ status: false, error: err.message })
             }
         }
 
-        module.exports = {orderCreate}
+        module.exports = {orderCreate,updateOrder}
+
+        

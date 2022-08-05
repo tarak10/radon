@@ -79,17 +79,6 @@ const createProduct = async function (req, res) {
         const uniquetitle = await productModel.findOne({title:data.title})
         if(uniquetitle) return res.status(400).send({status: false, message:"title already exist"})
 
-        // let product = {}
-        // product.title = data.title,
-        //     product.description = data.description,
-        //     product.price = data.price,
-        //     product.currencyId = data.currencyId,
-        //     product.currencyFormat = data.currencyFormat,
-        //     product.productImage = data.productImage
-        // product.style = data.style,
-        //     product.availableSizes = size,
-        //     product.installments = data.installments
-
 
         const Product = await productModel.create(data);
         return res.status(201).send({ status: true, message: 'Product Created Successfully', data: Product });
@@ -158,12 +147,12 @@ const getproduct = async function(req,res){
         const getproductid =  async function(req,res){
           try{
           let {productId} = req.params
-          if (!mongoose.isValidObjectId(productId)) { return res.status(400).send({ status: false, msg: "pleade provide valid productId" }) }
+          if (!Validator.isValidObjectId(productId)) { return res.status(400).send({ status: false, msg: "pleade provide valid productId" }) }
 
           //if(!productId) return res.status(400).send({status:false, message:"please enter productId"})
 
 
-          const getId = await productModel.findById({_id:productId})
+          const getId = await productModel.findOne({_id:productId, isDeleted: false})
           if(!getId ) return res.status(404).send({status:false, message:"product not found"})
           return res.status(200).send({status:true, message:"Success", data:getId})
 
@@ -181,7 +170,7 @@ const getproduct = async function(req,res){
   try {
 
       let productId = req.params.productId
-      if (!mongoose.isValidObjectId(productId)) { return res.status(400).send({ status: false, msg: "pleade provide valid productId" }) }
+      if (!Validator.isValidObjectId(productId)) { return res.status(400).send({ status: false, msg: "pleade provide valid productId" }) }
 
       let imageUrl = req.files
       let data = req.body
@@ -207,6 +196,18 @@ const getproduct = async function(req,res){
       if ("price" in data) {
           if (!Validator.isValid(price)) { return res.status(400).send({ status: false, message: "price can't be empty" }) }
           if (!Validator.isValidPrice(price)) { return res.status(400).send({ status: false, message: "please provide valid price" }) }
+          let cart = await CartModel.find({productId: productId})
+          if(cart.length >0){
+            for(let i=0;i<cart.length;i++){
+                for(let j=0;j<cart[i].items.length;j++){
+                    if(cart[i].items[j].productId==productId){
+                        cart[i].totalPrice=cart[i].totalPrice-(productDoc.price*cart[i].items[j].quantity)+(price*cart[i].items[j].quantity)
+                        cart[i].save()
+                    }
+                }
+            }
+
+          }
           productDoc.price = price
       }
 

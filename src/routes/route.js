@@ -35,6 +35,7 @@ router.delete("/user/:userId/cart",mw.authenticated, cartController.delCart )
 
 
 router.post("/user/:userId/orders",mw.authenticated, orderController.orderCreate )
+router.put("/user/:userId/orders",mw.authenticated, orderController.updateOrder )
 
 router.all("/*",(req,res)=>{
     return res.status(404).send({status:false,message:"Url not found"})

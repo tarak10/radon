@@ -53,7 +53,7 @@ try {
     }
 
 
-const findproduct = await productModel.findById({_id:productId, isDeleted: false})
+const findproduct = await productModel.findOne({_id:productId, isDeleted: false})
     if(!findproduct){
         return res.status(400).send({status: false, message:`productId doesn't exist by ${productId}`})
     }
