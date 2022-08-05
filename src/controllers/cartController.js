@@ -135,6 +135,8 @@ const updateCart = async function (req, res) {
       let userId = req.params.userId;
   
       let { cartId, productId, removeProduct } = req.body;
+
+      if(Object.keys(req.body).length == 0) return res.status(400).send({status:false, message:"please enter requestbody"})
   
       if (!productId)
         return res
@@ -158,9 +160,16 @@ const updateCart = async function (req, res) {
 
           //AuthoriZation check..................................................................................../////
 
-          if(userId != req.dtoken) res.status(403).send({status: false, message: "Unauthorized access"})
+          if(userId != req.dtoken) return res.status(403).send({status: false, message: "Unauthorized access"})
   
-      let cart = await cartModel.findOne({ userId: userId });
+
+          if (!Validator.isValid(cartId)) {
+            return res.status(400).send({
+              status: false,
+              message: "cartId is required",
+            });
+          }
+      let cart = await cartModel.findOne({ userId: userId});
       if (!cart)
         return res
           .status(400)
@@ -173,6 +182,13 @@ const updateCart = async function (req, res) {
           .send({
             status: false,
             message: " Please enter removeProduct details",
+          });
+
+          if(!Validator.isvalidQuantity(removeProduct)) return res
+          .status(400)
+          .send({
+            status: false,
+            message: " removeProduct should be a number",
           });
   
       if (cartId) {
@@ -230,8 +246,9 @@ const updateCart = async function (req, res) {
   const getCart = async function (req, res) {
     try {
       let userId = req.params.userId;
+      if(!Validator.isValidObjectId(userId)) return res.status(400).send({ status: false, message: "Please enter valid userId" });
 
-      if(userId != req.dtoken) res.status(403).send({status: false, message: "Unauthorized access"})
+      if(userId != req.dtoken) return res.status(403).send({status: false, message: "Unauthorized access"})
   
       let cartDetails = await cartModel
         .findOne({ userId: userId })
@@ -257,8 +274,10 @@ const updateCart = async function (req, res) {
   const delCart = async (req, res) => {
     try {
       let userId = req.params.userId;
+      if(!Validator.isValidObjectId(userId)) return res.status(400).send({ status: false, message: "Please enter valid userId" });
 
-      if(userId != req.dtoken) res.status(403).send({status: false, message: "Unauthorized access"})
+      
+      if(userId != req.dtoken)return res.status(403).send({status: false, message: "Unauthorized access"})
   
       let deleteCart = await cartModel.findOneAndUpdate(
         { userId: userId },
