@@ -305,7 +305,7 @@ const updateuser = async function (req, res) {
         
         userDoc.address = findAddress.address;                          
       
-        userDoc.save()
+       await userDoc.save()
         return res.status(200).send({ status: false, msg: "success ", data: userDoc })
 
          } catch (err) {
